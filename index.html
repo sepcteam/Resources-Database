@@ -65,7 +65,7 @@
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   #search {
@@ -89,7 +89,7 @@
     gap: 6px;
   }
 
-  .sort-btn {
+  .sort-btn, .filter-toggle-btn {
     padding: 9px 14px;
     font-size: 0.85rem;
     font-family: inherit;
@@ -102,45 +102,164 @@
     transition: all 0.15s ease;
   }
 
-  .sort-btn:hover {
+  .sort-btn:hover, .filter-toggle-btn:hover {
     border-color: var(--accent);
     color: var(--accent-dark);
   }
 
-  .sort-btn.active {
+  .sort-btn.active, .filter-toggle-btn.active {
     background: var(--accent);
     border-color: var(--accent);
     color: white;
   }
 
-  .tag-filters {
+  /* Filter panel */
+  .filter-panel {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+
+  .filter-panel.open {
+    display: flex;
+  }
+
+  .filter-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .year-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .year-range input[type="number"] {
+    width: 110px;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+  }
+
+  .year-range input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  .year-range span {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .multiselect {
+    position: relative;
+  }
+
+  .multiselect-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 28px;
+    gap: 6px;
+    margin-bottom: 8px;
   }
 
-  .tag-chip {
-    padding: 5px 12px;
+  .multiselect-chips .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eaf7ff;
+    color: var(--accent-dark);
+    font-size: 0.8rem;
+    padding: 4px 6px 4px 10px;
+    border-radius: 999px;
+  }
+
+  .multiselect-chips .chip button {
+    background: none;
+    border: none;
+    color: var(--accent-dark);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 2px;
+  }
+
+  .multiselect input[type="text"] {
+    width: 100%;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+  }
+
+  .multiselect input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  .multiselect-dropdown {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .multiselect-dropdown.open {
+    display: block;
+  }
+
+  .multiselect-dropdown .option {
+    padding: 8px 12px;
+    font-size: 0.87rem;
+    cursor: pointer;
+  }
+
+  .multiselect-dropdown .option:hover {
+    background: #f3f9ff;
+  }
+
+  .multiselect-dropdown .no-results {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .clear-filters-btn {
+    align-self: flex-start;
+    padding: 8px 14px;
     font-size: 0.8rem;
     font-family: inherit;
-    border-radius: 999px;
     border: 1.5px solid var(--border);
     background: var(--card-bg);
-    color: var(--muted);
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    color: var(--muted);
   }
 
-  .tag-chip:hover {
+  .clear-filters-btn:hover {
     border-color: var(--accent);
     color: var(--accent-dark);
-  }
-
-  .tag-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
   }
 
   .count {
@@ -260,6 +379,7 @@
 
     <div class="controls">
       <input type="search" id="search" placeholder="Search title, author, keyword…">
+      <button class="filter-toggle-btn" id="filterToggle">Filters</button>
       <div class="sort-group">
         <button class="sort-btn active" data-sort="year">Year</button>
         <button class="sort-btn" data-sort="title">Title</button>
@@ -267,19 +387,51 @@
       </div>
     </div>
 
-    <div class="tag-filters" id="tagFilters"></div>
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-group">
+        <label>Year range</label>
+        <div class="year-range">
+          <input type="number" id="yearFrom" placeholder="From">
+          <span>&ndash;</span>
+          <input type="number" id="yearTo" placeholder="To">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Author</label>
+        <div class="multiselect">
+          <div class="multiselect-chips" id="authorChips"></div>
+          <input type="text" id="authorSearch" placeholder="Search authors…" autocomplete="off">
+          <div class="multiselect-dropdown" id="authorDropdown"></div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Institution</label>
+        <div class="multiselect">
+          <div class="multiselect-chips" id="institutionChips"></div>
+          <input type="text" id="institutionSearch" placeholder="Search institutions…" autocomplete="off">
+          <div class="multiselect-dropdown" id="institutionDropdown"></div>
+        </div>
+      </div>
+
+      <button class="clear-filters-btn" id="clearFilters">Clear all filters</button>
+    </div>
+
     <div class="count" id="count"></div>
     <div id="results"><div class="loading">Loading papers…</div></div>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-  const CSV_URL = "Papers.csv"; // same repo, or replace with a published Google Sheet CSV URL
+  const CSV_URL = "Papers.csv"; // must match the exact filename/case in the repo
 
   let papers = [];
-  let activeTag = null;
   let sortKey = "year";
   let sortDir = "desc";
+
+  const selectedAuthors = new Set();
+  const selectedInstitutions = new Set();
 
   Papa.parse(CSV_URL, {
     download: true,
@@ -288,36 +440,46 @@
     complete: (r) => {
       papers = r.data.map(p => ({
         ...p,
-        tags: (p.tags || "").split(",").map(t => t.trim()).filter(Boolean)
+        authorList: (p.authors || "").split(";").map(s => s.trim()).filter(Boolean),
+        institutionList: (p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
+        tags: (p.tags || "").split(";").map(s => s.trim()).filter(Boolean)
       }));
-      buildTagFilters();
+      buildMultiselect(
+        "authorSearch", "authorDropdown", "authorChips",
+        [...new Set(papers.flatMap(p => p.authorList))].sort(),
+        selectedAuthors
+      );
+      buildMultiselect(
+        "institutionSearch", "institutionDropdown", "institutionChips",
+        [...new Set(papers.flatMap(p => p.institutionList))].sort(),
+        selectedInstitutions
+      );
       render();
     },
     error: () => {
       document.getElementById("results").innerHTML =
-        '<div class="empty">Could not load Papers.csv — check the file is in the same folder.</div>';
+        '<div class="empty">Could not load Papers.csv — check the file exists in the same folder with this exact name and case.</div>';
     }
   });
 
-  function buildTagFilters() {
-    const allTags = [...new Set(papers.flatMap(p => p.tags))].sort();
-    const el = document.getElementById("tagFilters");
-    el.innerHTML = allTags.map(t =>
-      `<button class="tag-chip" data-tag="${t}">${t}</button>`
-    ).join("");
-    el.querySelectorAll(".tag-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const tag = btn.dataset.tag;
-        activeTag = activeTag === tag ? null : tag;
-        el.querySelectorAll(".tag-chip").forEach(b =>
-          b.classList.toggle("active", b.dataset.tag === activeTag)
-        );
-        render();
-      });
-    });
-  }
-
   document.getElementById("search").addEventListener("input", render);
+  document.getElementById("yearFrom").addEventListener("input", render);
+  document.getElementById("yearTo").addEventListener("input", render);
+
+  document.getElementById("filterToggle").addEventListener("click", () => {
+    document.getElementById("filterPanel").classList.toggle("open");
+    document.getElementById("filterToggle").classList.toggle("active");
+  });
+
+  document.getElementById("clearFilters").addEventListener("click", () => {
+    selectedAuthors.clear();
+    selectedInstitutions.clear();
+    document.getElementById("authorChips").innerHTML = "";
+    document.getElementById("institutionChips").innerHTML = "";
+    document.getElementById("yearFrom").value = "";
+    document.getElementById("yearTo").value = "";
+    render();
+  });
 
   document.querySelectorAll(".sort-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -334,6 +496,62 @@
     });
   });
 
+  // Generic searchable multi-select: shows chips for selected values, a text input
+  // with a filtered dropdown of remaining options, and click-outside-to-close behaviour.
+  function buildMultiselect(inputId, dropdownId, chipsId, optionsList, selectedSet) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const chipsEl = document.getElementById(chipsId);
+
+    function renderChips() {
+      chipsEl.innerHTML = [...selectedSet].map(v => `
+        <span class="chip">${v}<button type="button" data-value="${v}">&times;</button></span>
+      `).join("");
+      chipsEl.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedSet.delete(btn.dataset.value);
+          renderChips();
+          render();
+        });
+      });
+    }
+
+    function renderDropdown(query) {
+      const q = query.toLowerCase();
+      const matches = optionsList
+        .filter(o => !selectedSet.has(o) && o.toLowerCase().includes(q))
+        .slice(0, 50);
+      dropdown.innerHTML = matches.length
+        ? matches.map(o => `<div class="option" data-value="${o}">${o}</div>`).join("")
+        : `<div class="no-results">No matches</div>`;
+      dropdown.querySelectorAll(".option").forEach(opt => {
+        opt.addEventListener("click", () => {
+          selectedSet.add(opt.dataset.value);
+          input.value = "";
+          dropdown.classList.remove("open");
+          renderChips();
+          render();
+        });
+      });
+    }
+
+    input.addEventListener("focus", () => {
+      renderDropdown(input.value);
+      dropdown.classList.add("open");
+    });
+    input.addEventListener("input", () => {
+      renderDropdown(input.value);
+      dropdown.classList.add("open");
+    });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(`#${inputId}`) && !e.target.closest(`#${dropdownId}`)) {
+        dropdown.classList.remove("open");
+      }
+    });
+
+    renderChips();
+  }
+
   // Escapes regex special characters so the raw search text can be used safely in a RegExp
   function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -348,10 +566,11 @@
     return text.replace(re, (m) => `<mark>${m}</mark>`);
   }
 
-  // Formats a row into an IEEE-style reference string from its structured fields
+  // Formats a row into an IEEE-style reference string from its structured fields.
+  // Authors are stored ";"-separated for reliable filtering, but displayed comma-separated.
   function formatIEEE(p, query) {
     let ref = "";
-    if (p.authors) ref += `${highlightMatch(p.authors, query)}, `;
+    if (p.authorList.length) ref += `${highlightMatch(p.authorList.join(", "), query)}, `;
     if (p.title) ref += `"${highlightMatch(p.title, query)}," `;
     if (p.journal) ref += `<em>${highlightMatch(p.journal, query)}</em>`;
     if (p.volume) ref += `, vol. ${p.volume}`;
@@ -365,11 +584,17 @@
   function render() {
     const rawQuery = document.getElementById("search").value;
     const q = rawQuery.toLowerCase();
+    const yearFrom = parseInt(document.getElementById("yearFrom").value) || null;
+    const yearTo = parseInt(document.getElementById("yearTo").value) || null;
 
     let list = papers.filter(p => {
       const matchesSearch = !q || Object.values(p).join(" ").toLowerCase().includes(q);
-      const matchesTag = !activeTag || p.tags.includes(activeTag);
-      return matchesSearch && matchesTag;
+      const yearVal = parseInt(p.year) || 0;
+      const matchesYearFrom = !yearFrom || yearVal >= yearFrom;
+      const matchesYearTo = !yearTo || yearVal <= yearTo;
+      const matchesAuthor = selectedAuthors.size === 0 || p.authorList.some(a => selectedAuthors.has(a));
+      const matchesInstitution = selectedInstitutions.size === 0 || p.institutionList.some(i => selectedInstitutions.has(i));
+      return matchesSearch && matchesYearFrom && matchesYearTo && matchesAuthor && matchesInstitution;
     });
 
     list.sort((a, b) => {
