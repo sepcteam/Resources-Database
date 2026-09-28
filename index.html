@@ -262,10 +262,69 @@
     color: var(--accent-dark);
   }
 
+  .count-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
   .count {
     color: var(--muted);
     font-size: 0.85rem;
-    margin-bottom: 16px;
+  }
+
+  .page-size-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .page-size-label select {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text);
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .pagination .page-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .pagination .page-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+
+  .pagination .page-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .pagination .page-info {
+    color: var(--muted);
+    font-size: 0.85rem;
   }
 
   .paper {
@@ -418,8 +477,20 @@
       <button class="clear-filters-btn" id="clearFilters">Clear all filters</button>
     </div>
 
-    <div class="count" id="count"></div>
+    <div class="count-row">
+      <div class="count" id="count"></div>
+      <label class="page-size-label">
+        Show
+        <select id="pageSize">
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+        per page
+      </label>
+    </div>
     <div id="results"><div class="loading">Loading papers…</div></div>
+    <div class="pagination" id="pagination"></div>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -429,6 +500,8 @@
   let papers = [];
   let sortKey = "year";
   let sortDir = "desc";
+  let currentPage = 1;
+  let pageSize = 50;
 
   const selectedAuthors = new Set();
   const selectedInstitutions = new Set();
@@ -438,12 +511,16 @@
     header: true,
     skipEmptyLines: true,
     complete: (r) => {
-      papers = r.data.map(p => ({
-        ...p,
-        authorList: (p.authors || "").split(";").map(s => s.trim()).filter(Boolean),
-        institutionList: (p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
-        tags: (p.tags || "").split(";").map(s => s.trim()).filter(Boolean)
-      }));
+      papers = r.data.map(p => {
+        const withLists = {
+          ...p,
+          authorList: (p.authors || "").split(";").map(s => s.trim()).filter(Boolean),
+          institutionList: (p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
+          tags: (p.tags || "").split(";").map(s => s.trim()).filter(Boolean)
+        };
+        withLists.searchText = Object.values(withLists).join(" ").toLowerCase();
+        return withLists;
+      });
       buildMultiselect(
         "authorSearch", "authorDropdown", "authorChips",
         [...new Set(papers.flatMap(p => p.authorList))].sort(),
@@ -458,15 +535,38 @@
     },
     error: () => {
       document.getElementById("results").innerHTML =
-        '<div class="empty">Could not load Papers.csv — check the file exists in the same folder with this exact name and case.</div>';
+        '<div class="empty">Could not load papers.csv — check the file exists in the same folder with this exact name and case.</div>';
     }
   });
 
-  document.getElementById("search").addEventListener("input", render);
-  document.getElementById("yearFrom").addEventListener("input", render);
-  document.getElementById("yearTo").addEventListener("input", render);
+  // Delays calling fn until the person pauses typing, so a full re-render doesn't
+  // fire on every single keystroke — this is what removes the typing lag/flicker.
+  function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
 
-  document.getElementById("filterToggle").addEventListener("click", () => {
+  // Any change to search text, filters, or sorting should jump back to page 1 —
+  // only Prev/Next should move between pages of an already-settled result set.
+  function applyFilterChange() {
+    currentPage = 1;
+    render();
+  }
+  const debouncedFilterChange = debounce(applyFilterChange, 150);
+
+  document.getElementById("search").addEventListener("input", debouncedFilterChange);
+  document.getElementById("yearFrom").addEventListener("input", debouncedFilterChange);
+  document.getElementById("yearTo").addEventListener("input", debouncedFilterChange);
+
+  document.getElementById("pageSize").addEventListener("change", (e) => {
+    pageSize = parseInt(e.target.value);
+    applyFilterChange();
+  });
+
+  document.getElementById("filterToggle").addEventListener("click", (btn) => {
     document.getElementById("filterPanel").classList.toggle("open");
     document.getElementById("filterToggle").classList.toggle("active");
   });
@@ -478,7 +578,7 @@
     document.getElementById("institutionChips").innerHTML = "";
     document.getElementById("yearFrom").value = "";
     document.getElementById("yearTo").value = "";
-    render();
+    applyFilterChange();
   });
 
   document.querySelectorAll(".sort-btn").forEach(btn => {
@@ -492,7 +592,7 @@
       }
       document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      render();
+      applyFilterChange();
     });
   });
 
@@ -511,7 +611,7 @@
         btn.addEventListener("click", () => {
           selectedSet.delete(btn.dataset.value);
           renderChips();
-          render();
+          applyFilterChange();
         });
       });
     }
@@ -530,7 +630,7 @@
           input.value = "";
           dropdown.classList.remove("open");
           renderChips();
-          render();
+          applyFilterChange();
         });
       });
     }
@@ -588,7 +688,7 @@
     const yearTo = parseInt(document.getElementById("yearTo").value) || null;
 
     let list = papers.filter(p => {
-      const matchesSearch = !q || Object.values(p).join(" ").toLowerCase().includes(q);
+      const matchesSearch = !q || p.searchText.includes(q);
       const yearVal = parseInt(p.year) || 0;
       const matchesYearFrom = !yearFrom || yearVal >= yearFrom;
       const matchesYearTo = !yearTo || yearVal <= yearTo;
@@ -609,8 +709,13 @@
     document.getElementById("count").textContent =
       `${list.length} paper${list.length === 1 ? "" : "s"}`;
 
-    document.getElementById("results").innerHTML = list.length
-      ? list.map(p => `
+    const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    const startIdx = (currentPage - 1) * pageSize;
+    const pageItems = list.slice(startIdx, startIdx + pageSize);
+
+    document.getElementById("results").innerHTML = pageItems.length
+      ? pageItems.map(p => `
         <div class="paper ${p.pdf_url ? "has-pdf" : ""}">
           <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
           ${p.pdf_url ? `<p class="paper-hint">Click to preview PDF</p>` : ""}
@@ -627,21 +732,20 @@
         </div>
       `).join("")
       : '<div class="empty">No papers match your search.</div>';
+
+    renderPagination(totalPages);
   }
 
-  // Click a paper box (but not a link inside it) to expand/collapse its PDF preview
-  document.getElementById("results").addEventListener("click", (e) => {
-    if (e.target.closest("a")) return; // let DOI/host links behave normally
-
-    const paperEl = e.target.closest(".paper.has-pdf");
-    if (!paperEl) return;
-
-    const isOpen = paperEl.classList.toggle("expanded");
-    if (isOpen) {
-      const iframe = paperEl.querySelector(".paper-pdf iframe");
-      if (iframe && !iframe.src) iframe.src = iframe.dataset.src;
+  // Draws Prev/Next + "Page X of Y" and wires up navigation. Clicking these
+  // only changes currentPage and re-renders — it does not touch any filter.
+  function renderPagination(totalPages) {
+    const el = document.getElementById("pagination");
+    if (totalPages <= 1) {
+      el.innerHTML = "";
+      return;
     }
-  });
-</script>
-</body>
-</html>
+    el.innerHTML = `
+      <button class="page-btn" id="prevPage" ${currentPage === 1 ? "disabled" : ""}>&larr; Prev</button>
+      <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+      <button class="page-btn" id="nextPage" ${currentPage === totalPages ? "disabled" : ""}>Next &rarr;</button>
+    `;
