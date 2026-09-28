@@ -155,6 +155,15 @@
     border-radius: 10px;
     border: 1px solid var(--border);
     margin-bottom: 12px;
+    transition: border-color 0.15s ease;
+  }
+
+  .paper.has-pdf {
+    cursor: pointer;
+  }
+
+  .paper.has-pdf:hover {
+    border-color: var(--accent);
   }
 
   .paper-ref {
@@ -165,6 +174,39 @@
 
   .paper-ref em {
     font-style: italic;
+  }
+
+  .paper-ref mark {
+    background: rgba(54, 179, 255, 0.28);
+    color: var(--accent-dark);
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+
+  .paper-hint {
+    font-size: 0.75rem;
+    color: var(--accent-dark);
+    margin: 0 0 10px;
+  }
+
+  .paper-pdf {
+    display: none;
+    margin-top: 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .paper.expanded .paper-pdf {
+    display: block;
+  }
+
+  .paper-pdf iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
   }
 
   .paper-links a {
@@ -209,7 +251,7 @@
 </head>
 <body>
   <header>
-    <img src="SEPC.png" alt="SEPC logo">
+    <img src="logo.png" alt="SEPC logo">
   </header>
 
   <div class="wrap">
@@ -253,7 +295,7 @@
     },
     error: () => {
       document.getElementById("results").innerHTML =
-        '<div class="empty">Could not load papers.csv — check the file is in the same folder.</div>';
+        '<div class="empty">Could not load Papers.csv — check the file is in the same folder.</div>';
     }
   });
 
@@ -292,22 +334,37 @@
     });
   });
 
+  // Escapes regex special characters so the raw search text can be used safely in a RegExp
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  // Wraps every case-insensitive match of `query` in a <mark> tag, applied per-field
+  // (never to the already-built HTML string) so highlighting can't land inside a tag like <em>
+  function highlightMatch(text, query) {
+    if (!text) return "";
+    if (!query) return text;
+    const re = new RegExp(escapeRegExp(query), "gi");
+    return text.replace(re, (m) => `<mark>${m}</mark>`);
+  }
+
   // Formats a row into an IEEE-style reference string from its structured fields
-  function formatIEEE(p) {
+  function formatIEEE(p, query) {
     let ref = "";
-    if (p.authors) ref += `${p.authors}, `;
-    if (p.title) ref += `"${p.title}," `;
-    if (p.journal) ref += `<em>${p.journal}</em>`;
+    if (p.authors) ref += `${highlightMatch(p.authors, query)}, `;
+    if (p.title) ref += `"${highlightMatch(p.title, query)}," `;
+    if (p.journal) ref += `<em>${highlightMatch(p.journal, query)}</em>`;
     if (p.volume) ref += `, vol. ${p.volume}`;
     if (p.issue) ref += `, no. ${p.issue}`;
     if (p.pages) ref += `, pp. ${p.pages}`;
-    if (p.year) ref += `, ${p.year}`;
+    if (p.year) ref += `, ${highlightMatch(String(p.year), query)}`;
     ref += ".";
     return ref;
   }
 
   function render() {
-    const q = document.getElementById("search").value.toLowerCase();
+    const rawQuery = document.getElementById("search").value;
+    const q = rawQuery.toLowerCase();
 
     let list = papers.filter(p => {
       const matchesSearch = !q || Object.values(p).join(" ").toLowerCase().includes(q);
@@ -329,17 +386,37 @@
 
     document.getElementById("results").innerHTML = list.length
       ? list.map(p => `
-        <div class="paper">
-          <p class="paper-ref">${formatIEEE(p)}</p>
+        <div class="paper ${p.pdf_url ? "has-pdf" : ""}">
+          <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
+          ${p.pdf_url ? `<p class="paper-hint">Click to preview PDF</p>` : ""}
           <div class="paper-links">
             ${p.doi ? `<a href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI</a>` : ""}
             ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank" rel="noopener">Host link</a>` : ""}
           </div>
           ${p.tags.length ? `<div class="paper-tags">${p.tags.map(t => `<span>${t}</span>`).join("")}</div>` : ""}
+          ${p.pdf_url ? `
+            <div class="paper-pdf">
+              <iframe data-src="${p.pdf_url}" title="PDF preview"></iframe>
+            </div>
+          ` : ""}
         </div>
       `).join("")
       : '<div class="empty">No papers match your search.</div>';
   }
+
+  // Click a paper box (but not a link inside it) to expand/collapse its PDF preview
+  document.getElementById("results").addEventListener("click", (e) => {
+    if (e.target.closest("a")) return; // let DOI/host links behave normally
+
+    const paperEl = e.target.closest(".paper.has-pdf");
+    if (!paperEl) return;
+
+    const isOpen = paperEl.classList.toggle("expanded");
+    if (isOpen) {
+      const iframe = paperEl.querySelector(".paper-pdf iframe");
+      if (iframe && !iframe.src) iframe.src = iframe.dataset.src;
+    }
+  });
 </script>
 </body>
 </html>
