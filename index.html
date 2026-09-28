@@ -30,18 +30,15 @@
 
   header {
     background: #ffffff;
-    padding: 20px 32px;
+    padding: 18px 32px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     border-bottom: 1px solid var(--border);
   }
 
-  .logo {
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: var(--accent);
-    letter-spacing: 0.02em;
+  header img {
+    height: 34px;
+    display: block;
   }
 
   .wrap {
@@ -160,17 +157,14 @@
     margin-bottom: 12px;
   }
 
-  .paper-title {
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin: 0 0 4px;
+  .paper-ref {
+    font-size: 0.98rem;
+    margin: 0 0 10px;
     color: var(--text);
   }
 
-  .paper-meta {
-    color: var(--muted);
-    font-size: 0.87rem;
-    margin: 0 0 8px;
+  .paper-ref em {
+    font-style: italic;
   }
 
   .paper-links a {
@@ -186,7 +180,7 @@
   }
 
   .paper-tags {
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   .paper-tags span {
@@ -215,7 +209,7 @@
 </head>
 <body>
   <header>
-    <div class="logo">SEPC</div>
+    <img src="logo.png" alt="SEPC logo">
   </header>
 
   <div class="wrap">
@@ -298,6 +292,20 @@
     });
   });
 
+  // Formats a row into an IEEE-style reference string from its structured fields
+  function formatIEEE(p) {
+    let ref = "";
+    if (p.authors) ref += `${p.authors}, `;
+    if (p.title) ref += `"${p.title}," `;
+    if (p.journal) ref += `<em>${p.journal}</em>`;
+    if (p.volume) ref += `, vol. ${p.volume}`;
+    if (p.issue) ref += `, no. ${p.issue}`;
+    if (p.pages) ref += `, pp. ${p.pages}`;
+    if (p.year) ref += `, ${p.year}`;
+    ref += ".";
+    return ref;
+  }
+
   function render() {
     const q = document.getElementById("search").value.toLowerCase();
 
@@ -322,8 +330,7 @@
     document.getElementById("results").innerHTML = list.length
       ? list.map(p => `
         <div class="paper">
-          <p class="paper-title">${p.title || "Untitled"}</p>
-          <p class="paper-meta">${p.authors || ""}${p.journal ? " · " + p.journal : ""}${p.year ? " · " + p.year : ""}</p>
+          <p class="paper-ref">${formatIEEE(p)}</p>
           <div class="paper-links">
             ${p.doi ? `<a href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI</a>` : ""}
             ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank" rel="noopener">Host link</a>` : ""}
