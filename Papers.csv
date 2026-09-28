@@ -1,1 +1,4 @@
-
+authors,title,year,journal,volume,issue,pages,doi,pdf_url,tags
+V. Zhurin,Physics of Closed Drift Thrusters,1999,Plasma Sources Science and Technology,8,1,1-20,10.1088/0963-0252/8/1/021,,Hall Thruster, Review
+V. Kim,Performance Evaluation of the SPT-100,1998,Journal of Propulsion and Power,14,5,736-743,10.2514/2.5335,,Hall Thruster, SPT-100
+R. Hofer,Magnetic Shielding of Hall Thrusters,2013,IEEE Transactions on Plasma Science,41,4,935-942,10.1109/TPS.2013.2260525,,Hall Thruster, Magnetic Shielding
