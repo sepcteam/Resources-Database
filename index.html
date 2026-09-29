@@ -9,6 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+  .filter-toggle-btn:active,
+.clear-filters-btn:active,
+.pagination .page-btn:active:not(:disabled),
+.paper-access-btn:active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+  
   :root {
     --accent: #36b3ff;
     --accent-dark: #1a8fd6;
@@ -370,10 +379,11 @@
 
   .navigation-actions {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: left;
   gap: 8px;
   flex: 0 0 auto;
+  margin-left: -80px;
 }
 
   .navigation-btn {
@@ -390,7 +400,7 @@
   }
 
   .navigation-btn:hover:not(:disabled) {
-    background: #f3f9ff;
+    
     border-color: var(--accent);
     color: var(--accent-dark);
   }
