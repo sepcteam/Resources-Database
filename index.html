@@ -489,13 +489,39 @@
     border-radius: 999px;
   }
 
-  .paper-doi {
+  .paper-author-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px 10px;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .paper-author {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--accent-dark);
     text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .paper-author:hover {
+    text-decoration: underline;
+  }
+
+  .paper-doi {
+    display: block;
+    width: 100%;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent-dark);
+    text-decoration: none;
+    text-align: right;
     margin-left: auto;
+    margin-top: 2px;
   }
 
   .paper-doi:hover {
@@ -1870,13 +1896,7 @@
 
           return `
 
-            <div
-              class="paper ${
-                p.pdf_url
-                  ? "has-pdf"
-                  : ""
-              }"
-            >
+            <div class="paper">
 
               <p class="paper-ref">
                 ${formatIEEE(
@@ -1912,24 +1932,43 @@
                 ${tagsHtml}
 
 
-                ${
-                  p.doi
+                <div class="paper-author-links">
 
-                    ? `
-                      <a
-                        class="paper-doi"
-                        href="https://doi.org/${encodeURIComponent(
-                          p.doi
-                        )}"
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        https://doi.org/${escapeHtml(p.doi)}
-                      </a>
-                    `
+                  ${
+                    p.authorList.length
+                      ? p.authorList
+                          .map(author => `
+                            <a
+                              href="#"
+                              class="paper-author"
+                              data-author="${escapeHtml(author)}"
+                              title="Show all papers by ${escapeHtml(author)}"
+                            >
+                              ${escapeHtml(author)}
+                            </a>
+                          `)
+                          .join("")
+                      : ""
+                  }
 
-                    : ""
-                }
+                  ${
+                    p.doi
+                      ? `
+                        <a
+                          class="paper-doi"
+                          href="https://doi.org/${encodeURIComponent(
+                            p.doi
+                          )}"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          https://doi.org/${escapeHtml(p.doi)}
+                        </a>
+                      `
+                      : ""
+                  }
+
+                </div>
 
               </div>
 
@@ -1942,10 +1981,80 @@
         .join("");
 
 
+    resultsEl
+      .querySelectorAll(".paper-author")
+      .forEach(link => {
+
+        link.addEventListener("click", (event) => {
+
+          event.preventDefault();
+
+          const author =
+            link.dataset.author || "";
+
+          if (author) {
+            showPapersByAuthor(author);
+          }
+
+        });
+
+      });
+
+
     renderPagination(
       totalPages
     );
 
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * AUTHOR FILTER
+   * ---------------------------------------------------------
+   *
+   * Clicking an author name clears the other filters and
+   * shows every paper in this database by that author.
+   */
+
+  function showPapersByAuthor(author) {
+
+    selectedAuthors.clear();
+    selectedAuthors.add(author);
+
+    selectedInstitutions.clear();
+
+    document.getElementById("search").value = "";
+    document.getElementById("authorSearch").value = "";
+    document.getElementById("institutionSearch").value = "";
+
+    document.getElementById("yearFrom").value = "";
+    document.getElementById("yearTo").value = "";
+
+    document.getElementById("authorChips").innerHTML = `
+      <span class="chip">
+        ${escapeHtml(author)}
+        <button
+          type="button"
+          data-value="${escapeHtml(author)}"
+          aria-label="Remove ${escapeHtml(author)}"
+        >
+          &times;
+        </button>
+      </span>
+    `;
+
+    document.getElementById("institutionChips").innerHTML = "";
+
+    currentPage = 1;
+    lastFilterState = null;
+
+    render();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
 
