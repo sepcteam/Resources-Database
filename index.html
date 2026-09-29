@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
   :root {
     --accent: #36b3ff;
@@ -143,7 +143,6 @@
     height: 17px;
   }
 
-  /* Filter panel */
   .filter-panel {
     display: none;
     flex-direction: column;
@@ -479,440 +478,1691 @@
   }
 </style>
 </head>
+
 <body>
-  <header>
-    <img src="SEPC.png" alt="SEPC logo">
-  </header>
 
-  <div class="wrap">
-    <h1>Paper Database</h1>
-    <p class="subtitle">Search and browse papers, linked to DOI and host pages.</p>
+<header>
+  <img src="SEPC.png" alt="SEPC logo">
+</header>
 
-    <div class="controls">
-      <div class="search-wrap">
-        <button class="search-icon-btn" id="searchIconBtn" type="button" aria-label="Search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-        <input type="search" id="search" placeholder="Search title, author, keyword…">
-      </div>
-      <button class="filter-toggle-btn" id="filterToggle">Filters</button>
+<div class="wrap">
+
+  <h1>Paper Database</h1>
+
+  <p class="subtitle">
+    Search and browse papers, linked to DOI and host pages.
+  </p>
+
+  <div class="controls">
+
+    <div class="search-wrap">
+
+      <button
+        class="search-icon-btn"
+        id="searchIconBtn"
+        type="button"
+        aria-label="Search"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+
+      <input
+        type="search"
+        id="search"
+        placeholder="Search title, author, keyword…"
+      >
+
     </div>
 
-    <div class="filter-panel" id="filterPanel">
-      <div class="filter-group">
-        <label>Year range</label>
-        <div class="year-range">
-          <input type="number" id="yearFrom" placeholder="From" min="0" step="1" inputmode="numeric">
-          <span>&ndash;</span>
-          <input type="number" id="yearTo" placeholder="To" min="0" step="1" inputmode="numeric">
-        </div>
-      </div>
+    <button class="filter-toggle-btn" id="filterToggle">
+      Filters
+    </button>
 
-      <div class="filter-group">
-        <label>Author</label>
-        <div class="multiselect">
-          <div class="multiselect-chips" id="authorChips"></div>
-          <input type="text" id="authorSearch" placeholder="Search authors…" autocomplete="off">
-          <div class="multiselect-dropdown" id="authorDropdown"></div>
-        </div>
-      </div>
-
-      <div class="filter-group">
-        <label>Institution</label>
-        <div class="multiselect">
-          <div class="multiselect-chips" id="institutionChips"></div>
-          <input type="text" id="institutionSearch" placeholder="Search institutions…" autocomplete="off">
-          <div class="multiselect-dropdown" id="institutionDropdown"></div>
-        </div>
-      </div>
-
-      <button class="clear-filters-btn" id="clearFilters">Clear all filters</button>
-    </div>
-
-    <div class="count-row">
-      <div class="count" id="count"></div>
-      <label class="page-size-label">
-        Show
-        <select id="pageSize">
-          <option value="25">25</option>
-          <option value="50" selected>50</option>
-          <option value="100">100</option>
-        </select>
-        per page
-      </label>
-    </div>
-    <div id="results"><div class="loading">Loading papers…</div></div>
-    <div class="pagination" id="pagination"></div>
   </div>
 
+  <div class="filter-panel" id="filterPanel">
+
+    <div class="filter-group">
+
+      <label>Year range</label>
+
+      <div class="year-range">
+
+        <input
+          type="number"
+          id="yearFrom"
+          placeholder="From"
+          min="0"
+          step="1"
+          inputmode="numeric"
+        >
+
+        <span>&ndash;</span>
+
+        <input
+          type="number"
+          id="yearTo"
+          placeholder="To"
+          min="0"
+          step="1"
+          inputmode="numeric"
+        >
+
+      </div>
+
+    </div>
+
+    <div class="filter-group">
+
+      <label>Author</label>
+
+      <div class="multiselect">
+
+        <div
+          class="multiselect-chips"
+          id="authorChips"
+        ></div>
+
+        <input
+          type="text"
+          id="authorSearch"
+          placeholder="Search authors…"
+          autocomplete="off"
+        >
+
+        <div
+          class="multiselect-dropdown"
+          id="authorDropdown"
+        ></div>
+
+      </div>
+
+    </div>
+
+    <div class="filter-group">
+
+      <label>Institution</label>
+
+      <div class="multiselect">
+
+        <div
+          class="multiselect-chips"
+          id="institutionChips"
+        ></div>
+
+        <input
+          type="text"
+          id="institutionSearch"
+          placeholder="Search institutions…"
+          autocomplete="off"
+        >
+
+        <div
+          class="multiselect-dropdown"
+          id="institutionDropdown"
+        ></div>
+
+      </div>
+
+    </div>
+
+    <button
+      class="clear-filters-btn"
+      id="clearFilters"
+    >
+      Clear all filters
+    </button>
+
+  </div>
+
+  <div class="count-row">
+
+    <div class="count" id="count"></div>
+
+    <label class="page-size-label">
+
+      Show
+
+      <select id="pageSize">
+        <option value="25">25</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+      </select>
+
+      per page
+
+    </label>
+
+  </div>
+
+  <div id="results">
+    <div class="loading">Loading papers…</div>
+  </div>
+
+  <div
+    class="pagination"
+    id="pagination"
+  ></div>
+
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
 <script>
-  const CSV_URL = "Papers.csv"; // must match the exact filename/case in the repo
+
+  const CSV_URL = "Papers.csv";
 
   let papers = [];
+
   let sortKey = "year";
   let sortDir = "desc";
+
   let currentPage = 1;
   let pageSize = 50;
 
   const selectedAuthors = new Set();
   const selectedInstitutions = new Set();
 
+  /*
+   * Cache the currently filtered/sorted list.
+   *
+   * This is one of the important performance changes.
+   *
+   * Previously, clicking Prev/Next caused the entire filtering
+   * and sorting process to happen again.
+   *
+   * Now filtering only happens when a filter actually changes.
+   */
+  let filteredPapers = [];
+
+  /*
+   * Cache the current filter state.
+   *
+   * If render() is called simply because the page changed,
+   * we don't need to run the filters again.
+   */
+  let lastFilterState = null;
+
+
+  /*
+   * ---------------------------------------------------------
+   * LOAD CSV
+   * ---------------------------------------------------------
+   */
+
   Papa.parse(CSV_URL, {
+
     download: true,
+
     header: true,
+
     skipEmptyLines: true,
+
     complete: (r) => {
+
       papers = r.data.map(p => {
-        const withLists = {
+
+        /*
+         * Convert everything we need once during loading.
+         *
+         * This avoids repeatedly converting strings/numbers
+         * every time the user searches.
+         */
+
+        const authorList = String(p.authors || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const institutionList = String(p.institution || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const tags = String(p.tags || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const yearNumber = parseInt(p.year, 10) || 0;
+
+        /*
+         * Build exactly the searchable text we need.
+         *
+         * This is much cheaper than:
+         *
+         * Object.values(withLists).join(...)
+         *
+         * because that also includes the derived arrays and
+         * other properties.
+         */
+
+        const searchText = [
+          p.title,
+          p.authors,
+          p.institution,
+          p.year,
+          p.tags,
+          p.doi,
+          p.journal,
+          p.volume,
+          p.issue,
+          p.pages
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return {
           ...p,
-          authorList: (p.authors || "").split(";").map(s => s.trim()).filter(Boolean),
-          institutionList: String(p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
-          tags: (p.tags || "").split(";").map(s => s.trim()).filter(Boolean)
+          authorList,
+          institutionList,
+          tags,
+          yearNumber,
+          searchText
         };
-        withLists.searchText = Object.values(withLists).join(" ").toLowerCase();
-        return withLists;
+
       });
 
+
+      /*
+       * -------------------------------------------------------
+       * BUILD AUTHOR / INSTITUTION LISTS
+       * -------------------------------------------------------
+       *
+       * All options are still kept.
+       *
+       * There is deliberately NO .slice(0, 50) here.
+       */
+
+      const authors = [
+        ...new Set(
+          papers.flatMap(p => p.authorList)
+        )
+      ].sort((a, b) =>
+        a.localeCompare(b)
+      );
+
+      const institutions = [
+        ...new Set(
+          papers.flatMap(p => p.institutionList)
+        )
+      ].sort((a, b) =>
+        a.localeCompare(b)
+      );
+
+
       buildMultiselect(
-        "authorSearch", "authorDropdown", "authorChips",
-        [...new Set(papers.flatMap(p => p.authorList))].sort(),
+        "authorSearch",
+        "authorDropdown",
+        "authorChips",
+        authors,
         selectedAuthors
       );
 
       buildMultiselect(
-        "institutionSearch", "institutionDropdown", "institutionChips",
-        [...new Set(papers.flatMap(p => p.institutionList))].sort(),
+        "institutionSearch",
+        "institutionDropdown",
+        "institutionChips",
+        institutions,
         selectedInstitutions
       );
 
-      render();
+
+      /*
+       * Initial render.
+       */
+
+      applyFilterChange();
+
     },
+
     error: () => {
+
       document.getElementById("results").innerHTML =
         '<div class="empty">Could not load papers.csv — check the file exists in the same folder with this exact name and case.</div>';
+
     }
+
   });
 
-  // Delays calling fn until the person pauses typing, so a full re-render doesn't
-  // fire on every single keystroke — this is what removes the typing lag/flicker.
+
+  /*
+   * ---------------------------------------------------------
+   * DEBOUNCE
+   * ---------------------------------------------------------
+   *
+   * Wait until the user pauses typing before filtering.
+   *
+   * 250 ms is enough to prevent a filter/render cycle from
+   * happening for every individual keystroke.
+   */
+
   function debounce(fn, delay) {
+
     let timer;
+
     return function (...args) {
+
       clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), delay);
+
+      timer = setTimeout(() => {
+
+        fn.apply(this, args);
+
+      }, delay);
+
     };
+
   }
 
-  // Any change to search text, filters, or sorting should jump back to page 1 —
-  // only Prev/Next should move between pages of an already-settled result set.
+
+  const debouncedFilterChange =
+    debounce(applyFilterChange, 250);
+
+
+  /*
+   * ---------------------------------------------------------
+   * FILTER CHANGE
+   * ---------------------------------------------------------
+   */
+
   function applyFilterChange() {
+
     currentPage = 1;
+
+    /*
+     * Force the filtering stage to run.
+     */
+
+    lastFilterState = null;
+
     render();
+
   }
 
-  const debouncedFilterChange = debounce(applyFilterChange, 150);
 
-  document.getElementById("search").addEventListener("input", debouncedFilterChange);
+  /*
+   * ---------------------------------------------------------
+   * EVENT LISTENERS
+   * ---------------------------------------------------------
+   */
 
-  // Year inputs: allow only whole numbers >= 0.
+  document
+    .getElementById("search")
+    .addEventListener(
+      "input",
+      debouncedFilterChange
+    );
+
+
+  /*
+   * Year inputs.
+   *
+   * Only allow digits.
+   * Prevent negative values.
+   */
+
   function sanitizeYearInput(input) {
+
     let value = input.value;
 
-    // Remove anything that isn't a digit.
     value = value.replace(/[^\d]/g, "");
 
-    // Remove leading zeroes while keeping a single zero.
+    /*
+     * Remove leading zeroes while preserving a single zero.
+     */
+
     if (value.length > 1) {
+
       value = value.replace(/^0+/, "");
-      if (value === "") value = "0";
+
+      if (value === "") {
+        value = "0";
+      }
+
     }
 
     input.value = value;
+
   }
 
-  document.getElementById("yearFrom").addEventListener("input", function () {
-    sanitizeYearInput(this);
-    debouncedFilterChange();
-  });
 
-  document.getElementById("yearTo").addEventListener("input", function () {
-    sanitizeYearInput(this);
-    debouncedFilterChange();
-  });
+  document
+    .getElementById("yearFrom")
+    .addEventListener("input", function () {
 
-  document.getElementById("pageSize").addEventListener("change", (e) => {
-    pageSize = parseInt(e.target.value);
-    applyFilterChange();
-  });
+      sanitizeYearInput(this);
 
-  document.getElementById("filterToggle").addEventListener("click", (btn) => {
-    document.getElementById("filterPanel").classList.toggle("open");
-    document.getElementById("filterToggle").classList.toggle("active");
-  });
+      debouncedFilterChange();
 
-  document.getElementById("clearFilters").addEventListener("click", () => {
-    selectedAuthors.clear();
-    selectedInstitutions.clear();
-    document.getElementById("authorChips").innerHTML = "";
-    document.getElementById("institutionChips").innerHTML = "";
-    document.getElementById("authorSearch").value = "";
-    document.getElementById("institutionSearch").value = "";
-    document.getElementById("yearFrom").value = "";
-    document.getElementById("yearTo").value = "";
-    applyFilterChange();
-  });
+    });
 
-  // Clicking the magnifying glass runs the search immediately, skipping the
-  // debounce delay — handy on mobile or after pasting a term into the box.
-  document.getElementById("searchIconBtn").addEventListener("click", () => {
-    applyFilterChange();
-  });
 
-  // Generic searchable multi-select: shows chips for selected values, a text input
-  // with a filtered dropdown of ALL remaining options, and click-outside-to-close behaviour.
-  function buildMultiselect(inputId, dropdownId, chipsId, optionsList, selectedSet) {
-    const input = document.getElementById(inputId);
-    const dropdown = document.getElementById(dropdownId);
-    const chipsEl = document.getElementById(chipsId);
+  document
+    .getElementById("yearTo")
+    .addEventListener("input", function () {
+
+      sanitizeYearInput(this);
+
+      debouncedFilterChange();
+
+    });
+
+
+  /*
+   * Page size.
+   */
+
+  document
+    .getElementById("pageSize")
+    .addEventListener("change", (e) => {
+
+      pageSize = parseInt(e.target.value, 10);
+
+      currentPage = 1;
+
+      /*
+       * No need to refilter.
+       *
+       * The underlying filtered list has not changed.
+       */
+
+      renderResults();
+
+    });
+
+
+  /*
+   * Filter panel toggle.
+   */
+
+  document
+    .getElementById("filterToggle")
+    .addEventListener("click", () => {
+
+      document
+        .getElementById("filterPanel")
+        .classList.toggle("open");
+
+      document
+        .getElementById("filterToggle")
+        .classList.toggle("active");
+
+    });
+
+
+  /*
+   * Clear filters.
+   */
+
+  document
+    .getElementById("clearFilters")
+    .addEventListener("click", () => {
+
+      selectedAuthors.clear();
+
+      selectedInstitutions.clear();
+
+      document.getElementById("authorSearch").value = "";
+      document.getElementById("institutionSearch").value = "";
+
+      document.getElementById("authorChips").innerHTML = "";
+      document.getElementById("institutionChips").innerHTML = "";
+
+      document.getElementById("yearFrom").value = "";
+      document.getElementById("yearTo").value = "";
+
+      applyFilterChange();
+
+    });
+
+
+  /*
+   * Search icon.
+   *
+   * Run immediately instead of waiting for debounce.
+   */
+
+  document
+    .getElementById("searchIconBtn")
+    .addEventListener("click", () => {
+
+      applyFilterChange();
+
+    });
+
+
+  /*
+   * ---------------------------------------------------------
+   * MULTISELECT
+   * ---------------------------------------------------------
+   */
+
+  function buildMultiselect(
+    inputId,
+    dropdownId,
+    chipsId,
+    optionsList,
+    selectedSet
+  ) {
+
+    const input =
+      document.getElementById(inputId);
+
+    const dropdown =
+      document.getElementById(dropdownId);
+
+    const chipsEl =
+      document.getElementById(chipsId);
+
+
+    /*
+     * Render selected chips.
+     *
+     * Event delegation is used instead of adding an event
+     * listener to every chip button individually.
+     */
 
     function renderChips() {
-      chipsEl.innerHTML = [...selectedSet].map(v => `
-        <span class="chip">${v}<button type="button" data-value="${v}">&times;</button></span>
-      `).join("");
 
-      chipsEl.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          selectedSet.delete(btn.dataset.value);
-          renderChips();
-          applyFilterChange();
-        });
-      });
+      chipsEl.innerHTML = [
+        ...selectedSet
+      ]
+        .map(v => `
+          <span class="chip">
+            ${escapeHtml(v)}
+            <button
+              type="button"
+              data-value="${escapeHtml(v)}"
+              aria-label="Remove ${escapeHtml(v)}"
+            >
+              &times;
+            </button>
+          </span>
+        `)
+        .join("");
+
     }
+
+
+    /*
+     * Render dropdown.
+     *
+     * IMPORTANT:
+     *
+     * This still makes ALL matching options available.
+     *
+     * We are not limiting the list to 50.
+     *
+     * The dropdown remains scrollable exactly as requested.
+     */
 
     function renderDropdown(query) {
+
       const q = query.toLowerCase();
 
-      // Show ALL matching options instead of limiting the dropdown to 50.
-      // The CSS max-height + overflow-y:auto makes the full list scrollable.
-      const matches = optionsList
-        .filter(o => !selectedSet.has(o) && o.toLowerCase().includes(q));
+      const matches = optionsList.filter(o =>
+        !selectedSet.has(o) &&
+        o.toLowerCase().includes(q)
+      );
+
 
       dropdown.innerHTML = matches.length
-        ? matches.map(o => `<div class="option" data-value="${o}">${o}</div>`).join("")
+
+        ? matches
+            .map(o => `
+              <div
+                class="option"
+                data-value="${escapeHtml(o)}"
+              >
+                ${escapeHtml(o)}
+              </div>
+            `)
+            .join("")
+
         : `<div class="no-results">No matches</div>`;
 
-      dropdown.querySelectorAll(".option").forEach(opt => {
-        opt.addEventListener("click", () => {
-          selectedSet.add(opt.dataset.value);
-          input.value = "";
-          dropdown.classList.remove("open");
-          renderChips();
-          applyFilterChange();
-        });
-      });
     }
+
+
+    /*
+     * One click listener for all chips.
+     */
+
+    chipsEl.addEventListener("click", (e) => {
+
+      const btn =
+        e.target.closest("button[data-value]");
+
+      if (!btn) return;
+
+      selectedSet.delete(
+        btn.dataset.value
+      );
+
+      renderChips();
+
+      applyFilterChange();
+
+    });
+
+
+    /*
+     * One click listener for the entire dropdown.
+     *
+     * This is considerably cheaper than creating a new
+     * event listener for every option every time the list
+     * changes.
+     */
+
+    dropdown.addEventListener("click", (e) => {
+
+      const option =
+        e.target.closest(".option");
+
+      if (!option) return;
+
+      selectedSet.add(
+        option.dataset.value
+      );
+
+      input.value = "";
+
+      dropdown.classList.remove("open");
+
+      renderChips();
+
+      applyFilterChange();
+
+    });
+
 
     input.addEventListener("focus", () => {
+
       renderDropdown(input.value);
+
       dropdown.classList.add("open");
+
     });
+
 
     input.addEventListener("input", () => {
+
       renderDropdown(input.value);
+
       dropdown.classList.add("open");
+
     });
+
+
+    /*
+     * Click outside to close.
+     */
 
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(`#${inputId}`) && !e.target.closest(`#${dropdownId}`)) {
+
+      if (
+        !e.target.closest(`#${inputId}`) &&
+        !e.target.closest(`#${dropdownId}`)
+      ) {
+
         dropdown.classList.remove("open");
+
       }
+
     });
+
 
     renderChips();
+
   }
 
-  // Escapes regex special characters so the raw search text can be used safely in a RegExp
+
+  /*
+   * ---------------------------------------------------------
+   * HTML ESCAPING
+   * ---------------------------------------------------------
+   *
+   * Keeps CSV values from being interpreted as HTML.
+   */
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * REGEX ESCAPING
+   * ---------------------------------------------------------
+   */
+
   function escapeRegExp(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    return str.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
   }
 
-  // Wraps every case-insensitive match of `query` in a <mark> tag, applied per-field
-  // (never to the already-built HTML string) so highlighting can't land inside a tag like <em>
+
+  /*
+   * ---------------------------------------------------------
+   * SEARCH HIGHLIGHTING
+   * ---------------------------------------------------------
+   */
+
   function highlightMatch(text, query) {
+
     if (!text) return "";
-    if (!query) return text;
-    const re = new RegExp(escapeRegExp(query), "gi");
-    return text.replace(re, (m) => `<mark>${m}</mark>`);
+
+    if (!query) {
+      return escapeHtml(text);
+    }
+
+    const safeText =
+      escapeHtml(text);
+
+    const safeQuery =
+      escapeRegExp(query);
+
+    const re =
+      new RegExp(safeQuery, "gi");
+
+    return safeText.replace(
+      re,
+      (m) => `<mark>${m}</mark>`
+    );
+
   }
 
-  // Formats a row into an IEEE-style reference string from its structured fields.
-  // Authors are stored "; "-separated for reliable filtering, but displayed comma-separated.
+
+  /*
+   * ---------------------------------------------------------
+   * IEEE REFERENCE FORMAT
+   * ---------------------------------------------------------
+   */
+
   function formatIEEE(p, query) {
+
     let ref = "";
-    if (p.authorList.length) ref += `${highlightMatch(p.authorList.join(", "), query)}, `;
-    if (p.title) ref += `"${highlightMatch(p.title, query)}," `;
-    if (p.journal) ref += `<em>${highlightMatch(p.journal, query)}</em>`;
-    if (p.volume) ref += `, vol. ${p.volume}`;
-    if (p.issue) ref += `, no. ${p.issue}`;
-    if (p.pages) ref += `, pp. ${p.pages}`;
-    if (p.year) ref += `, ${highlightMatch(String(p.year), query)}`;
+
+
+    if (p.authorList.length) {
+
+      ref +=
+        `${highlightMatch(
+          p.authorList.join(", "),
+          query
+        )}, `;
+
+    }
+
+
+    if (p.title) {
+
+      ref +=
+        `"${highlightMatch(
+          p.title,
+          query
+        )}," `;
+
+    }
+
+
+    if (p.journal) {
+
+      ref +=
+        `<em>${highlightMatch(
+          p.journal,
+          query
+        )}</em>`;
+
+    }
+
+
+    if (p.volume) {
+
+      ref +=
+        `, vol. ${escapeHtml(p.volume)}`;
+
+    }
+
+
+    if (p.issue) {
+
+      ref +=
+        `, no. ${escapeHtml(p.issue)}`;
+
+    }
+
+
+    if (p.pages) {
+
+      ref +=
+        `, pp. ${escapeHtml(p.pages)}`;
+
+    }
+
+
+    if (p.year) {
+
+      ref +=
+        `, ${highlightMatch(
+          String(p.year),
+          query
+        )}`;
+
+    }
+
+
     ref += ".";
+
     return ref;
+
   }
+
+
+  /*
+   * ---------------------------------------------------------
+   * GET FILTER STATE
+   * ---------------------------------------------------------
+   */
+
+  function getFilterState() {
+
+    const search =
+      document
+        .getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const yearFromRaw =
+      document
+        .getElementById("yearFrom")
+        .value;
+
+    const yearToRaw =
+      document
+        .getElementById("yearTo")
+        .value;
+
+
+    /*
+     * Empty is different from 0.
+     *
+     * This is important because year 0 should remain valid.
+     */
+
+    const yearFrom =
+      yearFromRaw === ""
+        ? null
+        : parseInt(yearFromRaw, 10);
+
+
+    const yearTo =
+      yearToRaw === ""
+        ? null
+        : parseInt(yearToRaw, 10);
+
+
+    return {
+
+      search,
+
+      yearFrom,
+
+      yearTo,
+
+      authors:
+        [...selectedAuthors].sort(),
+
+      institutions:
+        [...selectedInstitutions].sort()
+
+    };
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * CHECK WHETHER FILTER STATE CHANGED
+   * ---------------------------------------------------------
+   */
+
+  function filterStateEqual(a, b) {
+
+    if (!a || !b) {
+      return false;
+    }
+
+
+    if (a.search !== b.search) {
+      return false;
+    }
+
+
+    if (a.yearFrom !== b.yearFrom) {
+      return false;
+    }
+
+
+    if (a.yearTo !== b.yearTo) {
+      return false;
+    }
+
+
+    if (
+      a.authors.length !==
+      b.authors.length
+    ) {
+      return false;
+    }
+
+
+    if (
+      a.institutions.length !==
+      b.institutions.length
+    ) {
+      return false;
+    }
+
+
+    for (
+      let i = 0;
+      i < a.authors.length;
+      i++
+    ) {
+
+      if (
+        a.authors[i] !==
+        b.authors[i]
+      ) {
+        return false;
+      }
+
+    }
+
+
+    for (
+      let i = 0;
+      i < a.institutions.length;
+      i++
+    ) {
+
+      if (
+        a.institutions[i] !==
+        b.institutions[i]
+      ) {
+        return false;
+      }
+
+    }
+
+
+    return true;
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * FILTER PAPERS
+   * ---------------------------------------------------------
+   *
+   * This is now separate from rendering.
+   *
+   * It only runs when the actual filter state changes.
+   */
+
+  function filterPapers() {
+
+    const state =
+      getFilterState();
+
+
+    if (
+      filterStateEqual(
+        state,
+        lastFilterState
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    lastFilterState = state;
+
+
+    const {
+      search,
+      yearFrom,
+      yearTo,
+      authors,
+      institutions
+    } = state;
+
+
+    const authorSet =
+      new Set(authors);
+
+    const institutionSet =
+      new Set(institutions);
+
+
+    filteredPapers =
+      papers.filter(p => {
+
+
+        /*
+         * Search
+         */
+
+        if (
+          search &&
+          !p.searchText.includes(search)
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Year
+         */
+
+        if (
+          yearFrom !== null &&
+          p.yearNumber < yearFrom
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          yearTo !== null &&
+          p.yearNumber > yearTo
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Author
+         */
+
+        if (
+          authorSet.size > 0 &&
+          !p.authorList.some(
+            author =>
+              authorSet.has(author)
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Institution
+         */
+
+        if (
+          institutionSet.size > 0 &&
+          !p.institutionList.some(
+            institution =>
+              institutionSet.has(institution)
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        return true;
+
+      });
+
+
+    /*
+     * Sort ONLY when the filtered list changes.
+     *
+     * Pagination does not cause this sort to run again.
+     */
+
+    filteredPapers.sort(
+      (a, b) => {
+
+        let va;
+        let vb;
+
+
+        if (sortKey === "year") {
+
+          va = a.yearNumber;
+          vb = b.yearNumber;
+
+        } else {
+
+          va =
+            String(
+              a[sortKey] || ""
+            ).toLowerCase();
+
+          vb =
+            String(
+              b[sortKey] || ""
+            ).toLowerCase();
+
+        }
+
+
+        if (va < vb) {
+
+          return sortDir === "asc"
+            ? -1
+            : 1;
+
+        }
+
+
+        if (va > vb) {
+
+          return sortDir === "asc"
+            ? 1
+            : -1;
+
+        }
+
+
+        return 0;
+
+      }
+    );
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * MAIN RENDER
+   * ---------------------------------------------------------
+   */
 
   function render() {
-    const rawQuery = document.getElementById("search").value;
-    const q = rawQuery.toLowerCase();
 
-    const yearFromRaw = document.getElementById("yearFrom").value;
-    const yearToRaw = document.getElementById("yearTo").value;
+    /*
+     * Only run the expensive filtering/sorting stage
+     * when the filters have actually changed.
+     */
 
-    const yearFrom = yearFromRaw === "" ? null : parseInt(yearFromRaw, 10);
-    const yearTo = yearToRaw === "" ? null : parseInt(yearToRaw, 10);
+    filterPapers();
 
-    let list = papers.filter(p => {
-      const matchesSearch = !q || p.searchText.includes(q);
+    renderResults();
 
-      const yearVal = parseInt(p.year, 10) || 0;
+  }
 
-      const matchesYearFrom =
-        yearFrom === null || yearVal >= yearFrom;
 
-      const matchesYearTo =
-        yearTo === null || yearVal <= yearTo;
+  /*
+   * ---------------------------------------------------------
+   * RENDER RESULTS
+   * ---------------------------------------------------------
+   *
+   * Only the current page is converted into HTML.
+   */
 
-      const matchesAuthor =
-        selectedAuthors.size === 0 ||
-        p.authorList.some(a => selectedAuthors.has(a));
+  function renderResults() {
 
-      const matchesInstitution =
-        selectedInstitutions.size === 0 ||
-        p.institutionList.some(i => selectedInstitutions.has(i));
+    const rawQuery =
+      document
+        .getElementById("search")
+        .value
+        .trim();
 
-      return matchesSearch &&
-             matchesYearFrom &&
-             matchesYearTo &&
-             matchesAuthor &&
-             matchesInstitution;
-    });
 
-    list.sort((a, b) => {
-      let va = (a[sortKey] || "").toString().toLowerCase();
-      let vb = (b[sortKey] || "").toString().toLowerCase();
+    const countEl =
+      document.getElementById("count");
 
-      if (sortKey === "year") {
-        va = parseInt(va, 10) || 0;
-        vb = parseInt(vb, 10) || 0;
-      }
 
-      if (va < vb) return sortDir === "asc" ? -1 : 1;
-      if (va > vb) return sortDir === "asc" ? 1 : -1;
-      return 0;
-    });
+    countEl.textContent =
+      `${filteredPapers.length} paper${
+        filteredPapers.length === 1
+          ? ""
+          : "s"
+      }`;
 
-    document.getElementById("count").textContent =
-      `${list.length} paper${list.length === 1 ? "" : "s"}`;
 
-    const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+    const totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          filteredPapers.length /
+          pageSize
+        )
+      );
 
-    if (currentPage > totalPages) currentPage = totalPages;
 
-    const startIdx = (currentPage - 1) * pageSize;
-    const pageItems = list.slice(startIdx, startIdx + pageSize);
+    if (
+      currentPage >
+      totalPages
+    ) {
 
-    document.getElementById("results").innerHTML = pageItems.length
-      ? pageItems.map(p => {
-          // Routing through Google's viewer (rather than linking to the PDF directly)
-          // works around the frame-embedding restrictions most PDF hosts send by default.
-          const viewerUrl = p.pdf_url
-            ? `https://docs.google.com/viewer?url=${encodeURIComponent(p.pdf_url)}&embedded=true`
-            : "";
+      currentPage =
+        totalPages;
+
+    }
+
+
+    const startIdx =
+      (currentPage - 1) *
+      pageSize;
+
+
+    const pageItems =
+      filteredPapers.slice(
+        startIdx,
+        startIdx + pageSize
+      );
+
+
+    const resultsEl =
+      document.getElementById("results");
+
+
+    if (!pageItems.length) {
+
+      resultsEl.innerHTML =
+        '<div class="empty">No papers match your search.</div>';
+
+      renderPagination(
+        totalPages
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Build only the visible page.
+     */
+
+    resultsEl.innerHTML =
+      pageItems
+        .map(p => {
+
+
+          const viewerUrl =
+            p.pdf_url
+              ? `https://docs.google.com/viewer?url=${encodeURIComponent(
+                  p.pdf_url
+                )}&embedded=true`
+              : "";
+
+
+          const tagsHtml =
+            p.tags.length
+
+              ? `
+                <div class="paper-tags">
+                  ${p.tags
+                    .map(
+                      t =>
+                        `<span>${escapeHtml(t)}</span>`
+                    )
+                    .join("")}
+                </div>
+              `
+
+              : "<span></span>";
+
+
+          const pdfHtml =
+            p.pdf_url
+
+              ? `
+                <div class="paper-pdf">
+                  <iframe
+                    data-src="${escapeHtml(viewerUrl)}"
+                    title="PDF preview"
+                  ></iframe>
+                </div>
+              `
+
+              : "";
+
 
           return `
-        <div class="paper ${p.pdf_url ? "has-pdf" : ""}">
-          <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
-          ${p.pdf_url ? `<p class="paper-hint">Click to preview PDF</p>` : ""}
-          <div class="paper-links">
-            ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank" rel="noopener">Host link</a>` : ""}
-          </div>
-          <div class="paper-footer">
-            ${p.tags.length ? `<div class="paper-tags">${p.tags.map(t => `<span>${t}</span>`).join("")}</div>` : "<span></span>"}
-            ${p.doi ? `<a class="paper-doi" href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI: ${p.doi}</a>` : ""}
-          </div>
-          ${p.pdf_url ? `
-            <div class="paper-pdf">
-              <iframe data-src="${viewerUrl}" title="PDF preview"></iframe>
-            </div>
-          ` : ""}
-        </div>
-      `;
-        }).join("")
-      : '<div class="empty">No papers match your search.</div>';
 
-    renderPagination(totalPages);
+            <div
+              class="paper ${
+                p.pdf_url
+                  ? "has-pdf"
+                  : ""
+              }"
+            >
+
+              <p class="paper-ref">
+                ${formatIEEE(
+                  p,
+                  rawQuery
+                )}
+              </p>
+
+
+              ${
+                p.pdf_url
+
+                  ? `
+                    <p class="paper-hint">
+                      Click to preview PDF
+                    </p>
+                  `
+
+                  : ""
+              }
+
+
+              <div class="paper-links">
+
+                ${
+                  p.pdf_url
+
+                    ? `
+                      <a
+                        href="${escapeHtml(p.pdf_url)}"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Host link
+                      </a>
+                    `
+
+                    : ""
+                }
+
+              </div>
+
+
+              <div class="paper-footer">
+
+                ${tagsHtml}
+
+
+                ${
+                  p.doi
+
+                    ? `
+                      <a
+                        class="paper-doi"
+                        href="https://doi.org/${encodeURIComponent(
+                          p.doi
+                        )}"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        DOI: ${escapeHtml(p.doi)}
+                      </a>
+                    `
+
+                    : ""
+                }
+
+              </div>
+
+
+              ${pdfHtml}
+
+            </div>
+
+          `;
+
+        })
+        .join("");
+
+
+    renderPagination(
+      totalPages
+    );
+
   }
 
-  // Draws Prev/Next + "Page X of Y" and wires up navigation. Clicking these
-  // only changes currentPage and re-renders — it does not touch any filter.
-  function renderPagination(totalPages) {
-    const el = document.getElementById("pagination");
+
+  /*
+   * ---------------------------------------------------------
+   * PAGINATION
+   * ---------------------------------------------------------
+   */
+
+  function renderPagination(
+    totalPages
+  ) {
+
+    const el =
+      document.getElementById(
+        "pagination"
+      );
+
 
     if (totalPages <= 1) {
+
       el.innerHTML = "";
+
       return;
+
     }
+
 
     el.innerHTML = `
-      <button class="page-btn" id="prevPage" ${currentPage === 1 ? "disabled" : ""}>&larr; Prev</button>
-      <span class="page-info">Page ${currentPage} of ${totalPages}</span>
-      <button class="page-btn" id="nextPage" ${currentPage === totalPages ? "disabled" : ""}>Next &rarr;</button>
+
+      <button
+        class="page-btn"
+        id="prevPage"
+        ${
+          currentPage === 1
+            ? "disabled"
+            : ""
+        }
+      >
+        &larr; Prev
+      </button>
+
+
+      <span class="page-info">
+        Page ${currentPage} of ${totalPages}
+      </span>
+
+
+      <button
+        class="page-btn"
+        id="nextPage"
+        ${
+          currentPage === totalPages
+            ? "disabled"
+            : ""
+        }
+      >
+        Next &rarr;
+      </button>
+
     `;
 
-    document.getElementById("prevPage").addEventListener("click", () => {
-      if (currentPage > 1) {
-        currentPage--;
-        render();
-        document.querySelector(".wrap").scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
-    });
 
-    document.getElementById("nextPage").addEventListener("click", () => {
-      if (currentPage < totalPages) {
-        currentPage++;
-        render();
-        document.querySelector(".wrap").scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
-    });
+    document
+      .getElementById("prevPage")
+      .addEventListener(
+        "click",
+        () => {
+
+          if (
+            currentPage > 1
+          ) {
+
+            currentPage--;
+
+            /*
+             * IMPORTANT:
+             *
+             * render() is still safe here because
+             * filterPapers() sees that the filter state
+             * hasn't changed and immediately returns.
+             */
+
+            render();
+
+            document
+              .querySelector(".wrap")
+              .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById("nextPage")
+      .addEventListener(
+        "click",
+        () => {
+
+          if (
+            currentPage <
+            totalPages
+          ) {
+
+            currentPage++;
+
+            render();
+
+            document
+              .querySelector(".wrap")
+              .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+        }
+      );
+
   }
 
-  // Click a paper box (but not a link inside it) to expand/collapse its PDF preview
-  document.getElementById("results").addEventListener("click", (e) => {
-    if (e.target.closest("a")) return; // let DOI/host links behave normally
 
-    const paperEl = e.target.closest(".paper.has-pdf");
-    if (!paperEl) return;
+  /*
+   * ---------------------------------------------------------
+   * PDF PREVIEW
+   * ---------------------------------------------------------
+   *
+   * Event delegation means we only need ONE click listener
+   * for all paper cards.
+   */
 
-    const isOpen = paperEl.classList.toggle("expanded");
+  document
+    .getElementById("results")
+    .addEventListener(
+      "click",
+      (e) => {
 
-    if (isOpen) {
-      const iframe = paperEl.querySelector(".paper-pdf iframe");
 
-      if (iframe && !iframe.src) {
-        iframe.src = iframe.dataset.src;
+        /*
+         * Don't intercept DOI/host links.
+         */
+
+        if (
+          e.target.closest("a")
+        ) {
+
+          return;
+
+        }
+
+
+        const paperEl =
+          e.target.closest(
+            ".paper.has-pdf"
+          );
+
+
+        if (!paperEl) {
+
+          return;
+
+        }
+
+
+        const isOpen =
+          paperEl.classList.toggle(
+            "expanded"
+          );
+
+
+        if (isOpen) {
+
+          const iframe =
+            paperEl.querySelector(
+              ".paper-pdf iframe"
+            );
+
+
+          /*
+           * Lazy-load the PDF viewer.
+           *
+           * The iframe doesn't actually load until
+           * the user opens the paper.
+           */
+
+          if (
+            iframe &&
+            !iframe.src
+          ) {
+
+            iframe.src =
+              iframe.dataset.src;
+
+          }
+
+        }
+
       }
-    }
-  });
+    );
+
 </script>
+
 </body>
 </html>
-```
