@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paper Database</title>
+<title>Papers Database</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,9 +37,72 @@
     border-bottom: 1px solid var(--border);
   }
 
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
   header img {
     height: 34px;
     display: block;
+  }
+
+  .header-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .header-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .header-nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .header-nav a:hover {
+    color: var(--accent-dark);
+  }
+
+  .page-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .main-content {
+    min-width: 0;
+  }
+
+  .filter-sidebar {
+    min-width: 0;
+  }
+
+  .filter-sidebar .filter-panel {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 900px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-sidebar {
+      order: -1;
+    }
+
+    .filter-sidebar .filter-panel {
+      position: static;
+    }
   }
 
   .wrap {
@@ -151,12 +214,14 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 18px 20px;
-    margin-bottom: 24px;
+    position: sticky;
+    top: 20px;
   }
 
   .filter-panel.open {
     display: flex;
   }
+
 
   .filter-group label {
     display: block;
@@ -482,177 +547,172 @@
 <body>
 
 <header>
-  <img src="SEPC.png" alt="SEPC logo">
+  <div class="header-left">
+    <img src="SEPC.png" alt="SEPC logo">
+    <div class="header-title">Papers Database</div>
+  </div>
+
+  <nav class="header-nav" aria-label="Main navigation">
+    <a href="use-and-moderation.html">Use of the site</a>
+  </nav>
 </header>
 
 <div class="wrap">
 
-  <h1>Paper Database</h1>
+  <div class="page-layout">
 
-  <p class="subtitle">
-    Search and browse papers, linked to DOI and host pages.
-  </p>
+    <main class="main-content">
+      <h1>Papers Database</h1>
 
-  <div class="controls">
+      <p class="subtitle">
+        Courtesy of the SEPC team
+      </p>
 
-    <div class="search-wrap">
+      <div class="controls">
+        <div class="search-wrap">
 
-      <button
-        class="search-icon-btn"
-        id="searchIconBtn"
-        type="button"
-        aria-label="Search"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="11" cy="11" r="7"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      </button>
+          <button
+            class="search-icon-btn"
+            id="searchIconBtn"
+            type="button"
+            aria-label="Search"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
 
-      <input
-        type="search"
-        id="search"
-        placeholder="Search title, author, keyword…"
-      >
+          <input
+            type="search"
+            id="search"
+            placeholder="Search title, author, keyword…"
+          >
 
-    </div>
+        </div>
 
-    <button class="filter-toggle-btn" id="filterToggle">
-      Filters
-    </button>
-
-  </div>
-
-  <div class="filter-panel" id="filterPanel">
-
-    <div class="filter-group">
-
-      <label>Year range</label>
-
-      <div class="year-range">
-
-        <input
-          type="number"
-          id="yearFrom"
-          placeholder="From"
-          min="0"
-          step="1"
-          inputmode="numeric"
-        >
-
-        <span>&ndash;</span>
-
-        <input
-          type="number"
-          id="yearTo"
-          placeholder="To"
-          min="0"
-          step="1"
-          inputmode="numeric"
-        >
-
+        <button class="filter-toggle-btn" id="filterToggle">
+          Filters
+        </button>
       </div>
 
-    </div>
+      <div class="count-row">
+        <div class="count" id="count"></div>
 
-    <div class="filter-group">
-
-      <label>Author</label>
-
-      <div class="multiselect">
-
-        <div
-          class="multiselect-chips"
-          id="authorChips"
-        ></div>
-
-        <input
-          type="text"
-          id="authorSearch"
-          placeholder="Search authors…"
-          autocomplete="off"
-        >
-
-        <div
-          class="multiselect-dropdown"
-          id="authorDropdown"
-        ></div>
-
+        <label class="page-size-label">
+          Show
+          <select id="pageSize">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
+          per page
+        </label>
       </div>
 
-    </div>
-
-    <div class="filter-group">
-
-      <label>Institution</label>
-
-      <div class="multiselect">
-
-        <div
-          class="multiselect-chips"
-          id="institutionChips"
-        ></div>
-
-        <input
-          type="text"
-          id="institutionSearch"
-          placeholder="Search institutions…"
-          autocomplete="off"
-        >
-
-        <div
-          class="multiselect-dropdown"
-          id="institutionDropdown"
-        ></div>
-
+      <div id="results">
+        <div class="loading">Loading papers…</div>
       </div>
 
-    </div>
+      <div
+        class="pagination"
+        id="pagination"
+      ></div>
+    </main>
 
-    <button
-      class="clear-filters-btn"
-      id="clearFilters"
-    >
-      Clear all filters
-    </button>
+    <aside class="filter-sidebar" aria-label="Paper filters">
+      <div class="filter-panel" id="filterPanel">
+
+        <div class="filter-group">
+          <label>Year range</label>
+
+          <div class="year-range">
+            <input
+              type="number"
+              id="yearFrom"
+              placeholder="From"
+              min="0"
+              step="1"
+              inputmode="numeric"
+            >
+
+            <span>&ndash;</span>
+
+            <input
+              type="number"
+              id="yearTo"
+              placeholder="To"
+              min="0"
+              step="1"
+              inputmode="numeric"
+            >
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Author</label>
+
+          <div class="multiselect">
+            <div
+              class="multiselect-chips"
+              id="authorChips"
+            ></div>
+
+            <input
+              type="text"
+              id="authorSearch"
+              placeholder="Search authors…"
+              autocomplete="off"
+            >
+
+            <div
+              class="multiselect-dropdown"
+              id="authorDropdown"
+            ></div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Institution</label>
+
+          <div class="multiselect">
+            <div
+              class="multiselect-chips"
+              id="institutionChips"
+            ></div>
+
+            <input
+              type="text"
+              id="institutionSearch"
+              placeholder="Search institutions…"
+              autocomplete="off"
+            >
+
+            <div
+              class="multiselect-dropdown"
+              id="institutionDropdown"
+            ></div>
+          </div>
+        </div>
+
+        <button
+          class="clear-filters-btn"
+          id="clearFilters"
+        >
+          Clear all filters
+        </button>
+
+      </div>
+    </aside>
 
   </div>
-
-  <div class="count-row">
-
-    <div class="count" id="count"></div>
-
-    <label class="page-size-label">
-
-      Show
-
-      <select id="pageSize">
-        <option value="25">25</option>
-        <option value="50" selected>50</option>
-        <option value="100">100</option>
-      </select>
-
-      per page
-
-    </label>
-
-  </div>
-
-  <div id="results">
-    <div class="loading">Loading papers…</div>
-  </div>
-
-  <div
-    class="pagination"
-    id="pagination"
-  ></div>
 
 </div>
 
