@@ -370,14 +370,15 @@
 
   .navigation-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
     margin: 0 0 16px;
   }
 
   .navigation-btn {
-    padding: 9px 14px;
-    font-size: 0.85rem;
+    padding: 8px 14px;
+    font-size: 0.8rem;
     font-family: inherit;
     border: 1.5px solid var(--border);
     background: var(--card-bg);
@@ -403,6 +404,47 @@
   .navigation-btn:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+
+  .paper-access-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .paper-source {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .paper-access-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--accent-dark);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    margin-left: auto;
+  }
+
+  .paper-access-btn:hover {
+    background: #f3f9ff;
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
+
+  .paper-access-btn:active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
   }
 
   .count {
@@ -633,20 +675,6 @@
         </button>
       </div>
 
-      <div class="count-row">
-        <div class="count" id="count"></div>
-
-        <label class="page-size-label">
-          Show
-          <select id="pageSize">
-            <option value="25">25</option>
-            <option value="50" selected>50</option>
-            <option value="100">100</option>
-          </select>
-          per page
-        </label>
-      </div>
-
       <div class="navigation-actions">
         <button
           class="navigation-btn"
@@ -664,6 +692,20 @@
         >
           Back to all papers
         </button>
+      </div>
+
+      <div class="count-row">
+        <div class="count" id="count"></div>
+
+        <label class="page-size-label">
+          Show
+          <select id="pageSize">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
+          per page
+        </label>
       </div>
 
       <div id="results">
@@ -873,6 +915,7 @@
           p.year,
           p.tags,
           p.doi,
+          p.source,
           p.journal,
           p.volume,
           p.issue,
@@ -1474,6 +1517,110 @@
       /[.*+?^${}()|[\]\\]/g,
       "\\$&"
     );
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * PAPER SOURCE / HOST
+   * ---------------------------------------------------------
+   *
+   * This is intentionally modular.
+   *
+   * Preferred method:
+   * add a "source" column to the CSV, for example:
+   *
+   *   source
+   *   IEPC
+   *   EPS
+   *   AIAA
+   *
+   * If source is blank, IEPC is detected automatically from
+   * the journal/title so the existing database continues to
+   * work without a CSV change.
+   */
+
+  function getPaperSource(p) {
+
+    const explicitSource =
+      String(
+        p.source ||
+        p.Source ||
+        ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    if (
+      explicitSource === "iepc" ||
+      explicitSource.includes(
+        "international electric propulsion conference"
+      )
+    ) {
+
+      return {
+        key: "iepc",
+        label: "Hosted by ERPS"
+      };
+
+    }
+
+
+    const journal =
+      String(
+        p.journal || ""
+      )
+      .toLowerCase();
+
+
+    const title =
+      String(
+        p.title || ""
+      )
+      .toLowerCase();
+
+
+    if (
+      journal.includes("iepc") ||
+      journal.includes(
+        "international electric propulsion conference"
+      ) ||
+      title.includes("iepc")
+    ) {
+
+      return {
+        key: "iepc",
+        label: "Hosted by ERPS"
+      };
+
+    }
+
+
+    /*
+     * Future sources can be added here, for example:
+     *
+     * if (explicitSource === "eps") {
+     *   return {
+     *     key: "eps",
+     *     label: "Hosted by EPS"
+     *   };
+     * }
+     *
+     * if (explicitSource === "aiaa") {
+     *   return {
+     *     key: "aiaa",
+     *     label: "Hosted by AIAA"
+     *   };
+     * }
+     */
+
+
+    return {
+      key: explicitSource || "unknown",
+      label: ""
+    };
 
   }
 
@@ -2307,25 +2454,41 @@
               </p>
 
 
-              <div class="paper-links">
+              ${
+                p.pdf_url
+                  ? (() => {
 
-                ${
-                  p.pdf_url
+                      const source =
+                        getPaperSource(p);
 
-                    ? `
-                      <a
-                        href="${escapeHtml(p.pdf_url)}"
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        Host link
-                      </a>
-                    `
+                      return `
+                        <div class="paper-access-row">
 
-                    : ""
-                }
+                          ${
+                            source.label
+                              ? `
+                                <span class="paper-source">
+                                  ${escapeHtml(source.label)}
+                                </span>
+                              `
+                              : "<span></span>"
+                          }
 
-              </div>
+                          <a
+                            class="paper-access-btn"
+                            href="${escapeHtml(p.pdf_url)}"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            Access Paper
+                          </a>
+
+                        </div>
+                      `;
+
+                    })()
+                  : ""
+              }
 
 
               <div class="paper-footer">
