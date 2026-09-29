@@ -569,22 +569,25 @@
         const withLists = {
           ...p,
           authorList: (p.authors || "").split(";").map(s => s.trim()).filter(Boolean),
-          institutionList: (p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
+          institutionList: String(p.institution || "").split(";").map(s => s.trim()).filter(Boolean),
           tags: (p.tags || "").split(";").map(s => s.trim()).filter(Boolean)
         };
         withLists.searchText = Object.values(withLists).join(" ").toLowerCase();
         return withLists;
       });
+
       buildMultiselect(
         "authorSearch", "authorDropdown", "authorChips",
         [...new Set(papers.flatMap(p => p.authorList))].sort(),
         selectedAuthors
       );
+
       buildMultiselect(
         "institutionSearch", "institutionDropdown", "institutionChips",
         [...new Set(papers.flatMap(p => p.institutionList))].sort(),
         selectedInstitutions
       );
+
       render();
     },
     error: () => {
@@ -609,6 +612,7 @@
     currentPage = 1;
     render();
   }
+
   const debouncedFilterChange = debounce(applyFilterChange, 150);
 
   document.getElementById("search").addEventListener("input", debouncedFilterChange);
@@ -684,10 +688,12 @@
       renderDropdown(input.value);
       dropdown.classList.add("open");
     });
+
     input.addEventListener("input", () => {
       renderDropdown(input.value);
       dropdown.classList.add("open");
     });
+
     document.addEventListener("click", (e) => {
       if (!e.target.closest(`#${inputId}`) && !e.target.closest(`#${dropdownId}`)) {
         dropdown.classList.remove("open");
@@ -766,6 +772,7 @@
           const viewerUrl = p.pdf_url
             ? `https://docs.google.com/viewer?url=${encodeURIComponent(p.pdf_url)}&embedded=true`
             : "";
+
           return `
         <div class="paper ${p.pdf_url ? "has-pdf" : ""}">
           <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
@@ -798,11 +805,13 @@
       el.innerHTML = "";
       return;
     }
+
     el.innerHTML = `
       <button class="page-btn" id="prevPage" ${currentPage === 1 ? "disabled" : ""}>&larr; Prev</button>
       <span class="page-info">Page ${currentPage} of ${totalPages}</span>
       <button class="page-btn" id="nextPage" ${currentPage === totalPages ? "disabled" : ""}>Next &rarr;</button>
     `;
+
     document.getElementById("prevPage").addEventListener("click", () => {
       if (currentPage > 1) {
         currentPage--;
@@ -810,6 +819,7 @@
         document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
+
     document.getElementById("nextPage").addEventListener("click", () => {
       if (currentPage < totalPages) {
         currentPage++;
