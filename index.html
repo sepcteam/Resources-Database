@@ -435,14 +435,6 @@
     transition: border-color 0.15s ease;
   }
 
-  .paper.has-pdf {
-    cursor: pointer;
-  }
-
-  .paper.has-pdf:hover {
-    border-color: var(--accent);
-  }
-
   .paper-ref {
     font-size: 0.98rem;
     margin: 0 0 10px;
@@ -459,31 +451,6 @@
     font-weight: 600;
     border-radius: 3px;
     padding: 0 1px;
-  }
-
-  .paper-hint {
-    font-size: 0.75rem;
-    color: var(--accent-dark);
-    margin: 0 0 10px;
-  }
-
-  .paper-pdf {
-    display: none;
-    margin-top: 14px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-
-  .paper.expanded .paper-pdf {
-    display: block;
-  }
-
-  .paper-pdf iframe {
-    width: 100%;
-    height: 600px;
-    border: none;
-    display: block;
   }
 
   .paper-links a {
@@ -1883,13 +1850,6 @@
         .map(p => {
 
 
-          const viewerUrl =
-            p.pdf_url
-              ? `https://docs.google.com/viewer?url=${encodeURIComponent(
-                  p.pdf_url
-                )}&embedded=true`
-              : "";
-
 
           const tagsHtml =
             p.tags.length
@@ -1908,21 +1868,6 @@
               : "<span></span>";
 
 
-          const pdfHtml =
-            p.pdf_url
-
-              ? `
-                <div class="paper-pdf">
-                  <iframe
-                    data-src="${escapeHtml(viewerUrl)}"
-                    title="PDF preview"
-                  ></iframe>
-                </div>
-              `
-
-              : "";
-
-
           return `
 
             <div
@@ -1939,19 +1884,6 @@
                   rawQuery
                 )}
               </p>
-
-
-              ${
-                p.pdf_url
-
-                  ? `
-                    <p class="paper-hint">
-                      Click to preview PDF
-                    </p>
-                  `
-
-                  : ""
-              }
 
 
               <div class="paper-links">
@@ -1992,7 +1924,7 @@
                         target="_blank"
                         rel="noopener"
                       >
-                        DOI: ${escapeHtml(p.doi)}
+                        https://doi.org/${escapeHtml(p.doi)}
                       </a>
                     `
 
@@ -2001,8 +1933,6 @@
 
               </div>
 
-
-              ${pdfHtml}
 
             </div>
 
@@ -2143,84 +2073,6 @@
 
   }
 
-
-  /*
-   * ---------------------------------------------------------
-   * PDF PREVIEW
-   * ---------------------------------------------------------
-   *
-   * Event delegation means we only need ONE click listener
-   * for all paper cards.
-   */
-
-  document
-    .getElementById("results")
-    .addEventListener(
-      "click",
-      (e) => {
-
-
-        /*
-         * Don't intercept DOI/host links.
-         */
-
-        if (
-          e.target.closest("a")
-        ) {
-
-          return;
-
-        }
-
-
-        const paperEl =
-          e.target.closest(
-            ".paper.has-pdf"
-          );
-
-
-        if (!paperEl) {
-
-          return;
-
-        }
-
-
-        const isOpen =
-          paperEl.classList.toggle(
-            "expanded"
-          );
-
-
-        if (isOpen) {
-
-          const iframe =
-            paperEl.querySelector(
-              ".paper-pdf iframe"
-            );
-
-
-          /*
-           * Lazy-load the PDF viewer.
-           *
-           * The iframe doesn't actually load until
-           * the user opens the paper.
-           */
-
-          if (
-            iframe &&
-            !iframe.src
-          ) {
-
-            iframe.src =
-              iframe.dataset.src;
-
-          }
-
-        }
-
-      }
-    );
 
 </script>
 
