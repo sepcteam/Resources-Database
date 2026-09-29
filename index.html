@@ -369,14 +369,12 @@
   }
 
   .navigation-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 8px;
-    flex: 0 0 auto;
-    margin: 0 12px 0 0;
-  }
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
 
   .navigation-btn {
     padding: 8px 14px;
@@ -437,18 +435,15 @@
   }
 
   .paper-access-btn:hover {
-    background: #f3f9ff;
-    border-color: var(--accent);
-    color: var(--accent-dark);
-    text-decoration: none;
-  }
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  text-decoration: none;
+}
 
-  .paper-access-btn:active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-  }
-
+.paper-access-btn:active {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+}
   .count {
     color: var(--muted);
     font-size: 0.85rem;
@@ -643,6 +638,24 @@
 
     <main class="main-content">
       <div class="controls">
+        <div class="navigation-actions">
+        <button
+          class="navigation-btn"
+          id="backButton"
+          type="button"
+          disabled
+        >
+          &larr; Back
+        </button>
+
+        <button
+          class="navigation-btn"
+          id="backToAll"
+          type="button"
+        >
+          Back to all papers
+        </button>
+        </div>
         <div class="search-wrap">
 
           <button
@@ -677,24 +690,7 @@
         </button>
       </div>
 
-      <div class="navigation-actions">
-        <button
-          class="navigation-btn"
-          id="backButton"
-          type="button"
-          disabled
-        >
-          &larr; Back
-        </button>
-
-        <button
-          class="navigation-btn"
-          id="backToAll"
-          type="button"
-        >
-          Back to all papers
-        </button>
-      </div>
+      
 
       <div class="count-row">
         <div class="count" id="count"></div>
