@@ -428,8 +428,19 @@
     text-decoration: underline;
   }
 
-  .paper-tags {
+  .paper-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-top: 10px;
+  }
+
+  .paper-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .paper-tags span {
@@ -439,8 +450,19 @@
     background: #eaf7ff;
     padding: 2px 9px;
     border-radius: 999px;
-    margin-right: 6px;
-    margin-top: 4px;
+  }
+
+  .paper-doi {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent-dark);
+    text-decoration: none;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  .paper-doi:hover {
+    text-decoration: underline;
   }
 
   .empty {
@@ -738,22 +760,31 @@
     const pageItems = list.slice(startIdx, startIdx + pageSize);
 
     document.getElementById("results").innerHTML = pageItems.length
-      ? pageItems.map(p => `
+      ? pageItems.map(p => {
+          // Routing through Google's viewer (rather than linking to the PDF directly)
+          // works around the frame-embedding restrictions most PDF hosts send by default.
+          const viewerUrl = p.pdf_url
+            ? `https://docs.google.com/viewer?url=${encodeURIComponent(p.pdf_url)}&embedded=true`
+            : "";
+          return `
         <div class="paper ${p.pdf_url ? "has-pdf" : ""}">
           <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
           ${p.pdf_url ? `<p class="paper-hint">Click to preview PDF</p>` : ""}
           <div class="paper-links">
-            ${p.doi ? `<a href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI</a>` : ""}
             ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank" rel="noopener">Host link</a>` : ""}
           </div>
-          ${p.tags.length ? `<div class="paper-tags">${p.tags.map(t => `<span>${t}</span>`).join("")}</div>` : ""}
+          <div class="paper-footer">
+            ${p.tags.length ? `<div class="paper-tags">${p.tags.map(t => `<span>${t}</span>`).join("")}</div>` : "<span></span>"}
+            ${p.doi ? `<a class="paper-doi" href="https://doi.org/${p.doi}" target="_blank" rel="noopener">DOI: ${p.doi}</a>` : ""}
+          </div>
           ${p.pdf_url ? `
             <div class="paper-pdf">
-              <iframe data-src="${p.pdf_url}" title="PDF preview"></iframe>
+              <iframe data-src="${viewerUrl}" title="PDF preview"></iframe>
             </div>
           ` : ""}
         </div>
-      `).join("")
+      `;
+        }).join("")
       : '<div class="empty">No papers match your search.</div>';
 
     renderPagination(totalPages);
