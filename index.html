@@ -368,6 +368,43 @@
     margin-bottom: 16px;
   }
 
+  .navigation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 16px;
+  }
+
+  .navigation-btn {
+    padding: 9px 14px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--accent-dark);
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .navigation-btn:hover:not(:disabled) {
+    background: #f3f9ff;
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+
+  .navigation-btn:active:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .navigation-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
   .count {
     color: var(--muted);
     font-size: 0.85rem;
@@ -610,6 +647,25 @@
         </label>
       </div>
 
+      <div class="navigation-actions">
+        <button
+          class="navigation-btn"
+          id="backButton"
+          type="button"
+          disabled
+        >
+          &larr; Back
+        </button>
+
+        <button
+          class="navigation-btn"
+          id="backToAll"
+          type="button"
+        >
+          Back to all papers
+        </button>
+      </div>
+
       <div id="results">
         <div class="loading">Loading papers…</div>
       </div>
@@ -745,6 +801,16 @@
    * we don't need to run the filters again.
    */
   let lastFilterState = null;
+
+  /*
+   * Navigation history.
+   *
+   * Each entry stores the complete database view immediately
+   * before the latest user action.
+   */
+  const navigationHistory = [];
+
+  let lastViewSnapshot = null;
 
 
   /*
@@ -932,6 +998,12 @@
 
   function applyFilterChange() {
 
+    /*
+     * Save the view that existed immediately before this
+     * filter/search action.
+     */
+    pushCurrentViewToHistory();
+
     currentPage = 1;
 
     /*
@@ -1021,9 +1093,15 @@
     .getElementById("pageSize")
     .addEventListener("change", (e) => {
 
-      pageSize = parseInt(e.target.value, 10);
+      pageSize =
+        parseInt(
+          e.target.value,
+          10
+        );
 
       currentPage = 1;
+
+      pushCurrentViewToHistory();
 
       /*
        * No need to refilter.
@@ -1032,6 +1110,11 @@
        */
 
       renderResults();
+
+      lastViewSnapshot =
+        getViewSnapshot();
+
+      updateNavigationButtons();
 
     });
 
@@ -1092,6 +1175,83 @@
     .addEventListener("click", () => {
 
       applyFilterChange();
+
+    });
+
+
+  /*
+   * ---------------------------------------------------------
+   * NAVIGATION BUTTONS
+   * ---------------------------------------------------------
+   */
+
+  document
+    .getElementById("backButton")
+    .addEventListener("click", () => {
+
+      if (
+        navigationHistory.length === 0
+      ) {
+        return;
+      }
+
+      const previousView =
+        navigationHistory.pop();
+
+      restoreViewSnapshot(
+        previousView
+      );
+
+      updateNavigationButtons();
+
+    });
+
+
+  document
+    .getElementById("backToAll")
+    .addEventListener("click", () => {
+
+      /*
+       * This is a deliberate jump rather than a history
+       * action, so it clears the Back history.
+       */
+      navigationHistory.length = 0;
+
+      selectedAuthors.clear();
+
+      selectedInstitutions.clear();
+
+      document.getElementById("search").value =
+        "";
+
+      document.getElementById("authorSearch").value =
+        "";
+
+      document.getElementById("institutionSearch").value =
+        "";
+
+      document.getElementById("authorChips").innerHTML =
+        "";
+
+      document.getElementById("institutionChips").innerHTML =
+        "";
+
+      document.getElementById("yearFrom").value =
+        "";
+
+      document.getElementById("yearTo").value =
+        "";
+
+      currentPage = 1;
+
+      lastFilterState = null;
+
+      render();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
 
     });
 
@@ -1582,6 +1742,238 @@
 
   /*
    * ---------------------------------------------------------
+   * NAVIGATION HISTORY
+   * ---------------------------------------------------------
+   */
+
+  function cloneFilterState(state) {
+
+    if (!state) {
+      return null;
+    }
+
+    return {
+      search: state.search,
+      yearFrom: state.yearFrom,
+      yearTo: state.yearTo,
+      authors: [...state.authors],
+      institutions: [...state.institutions]
+    };
+
+  }
+
+
+  function getViewSnapshot() {
+
+    return {
+      filterState:
+        cloneFilterState(
+          getFilterState()
+        ),
+
+      currentPage,
+
+      pageSize
+
+    };
+
+  }
+
+
+  function viewStateEqual(a, b) {
+
+    if (!a || !b) {
+      return false;
+    }
+
+    if (
+      a.currentPage !==
+      b.currentPage
+    ) {
+      return false;
+    }
+
+    if (
+      a.pageSize !==
+      b.pageSize
+    ) {
+      return false;
+    }
+
+    return filterStateEqual(
+      a.filterState,
+      b.filterState
+    );
+
+  }
+
+
+  function pushCurrentViewToHistory() {
+
+    const currentView =
+      getViewSnapshot();
+
+    if (
+      !lastViewSnapshot ||
+      viewStateEqual(
+        lastViewSnapshot,
+        currentView
+      )
+    ) {
+      return;
+    }
+
+    navigationHistory.push({
+      filterState:
+        cloneFilterState(
+          lastViewSnapshot.filterState
+        ),
+
+      currentPage:
+        lastViewSnapshot.currentPage,
+
+      pageSize:
+        lastViewSnapshot.pageSize
+
+    });
+
+    /*
+     * Keep the history bounded so repeated searches cannot
+     * grow the page indefinitely.
+     */
+    if (
+      navigationHistory.length > 50
+    ) {
+      navigationHistory.shift();
+    }
+
+    updateNavigationButtons();
+
+  }
+
+
+  function renderHistoryChips(
+    elementId,
+    values
+  ) {
+
+    const element =
+      document.getElementById(
+        elementId
+      );
+
+    element.innerHTML =
+      values
+        .map(value => `
+          <span class="chip">
+            ${escapeHtml(value)}
+            <button
+              type="button"
+              data-value="${escapeHtml(value)}"
+              aria-label="Remove ${escapeHtml(value)}"
+            >
+              &times;
+            </button>
+          </span>
+        `)
+        .join("");
+
+  }
+
+
+  function restoreViewSnapshot(snapshot) {
+
+    selectedAuthors.clear();
+
+    snapshot
+      .filterState
+      .authors
+      .forEach(author =>
+        selectedAuthors.add(author)
+      );
+
+
+    selectedInstitutions.clear();
+
+    snapshot
+      .filterState
+      .institutions
+      .forEach(institution =>
+        selectedInstitutions.add(institution)
+      );
+
+
+    document.getElementById("search").value =
+      snapshot.filterState.search;
+
+
+    document.getElementById("authorSearch").value =
+      "";
+
+    document.getElementById("institutionSearch").value =
+      "";
+
+
+    document.getElementById("yearFrom").value =
+      snapshot.filterState.yearFrom === null
+        ? ""
+        : snapshot.filterState.yearFrom;
+
+
+    document.getElementById("yearTo").value =
+      snapshot.filterState.yearTo === null
+        ? ""
+        : snapshot.filterState.yearTo;
+
+
+    renderHistoryChips(
+      "authorChips",
+      snapshot.filterState.authors
+    );
+
+    renderHistoryChips(
+      "institutionChips",
+      snapshot.filterState.institutions
+    );
+
+
+    pageSize =
+      snapshot.pageSize;
+
+    document.getElementById("pageSize").value =
+      String(pageSize);
+
+
+    currentPage =
+      snapshot.currentPage;
+
+
+    lastFilterState = null;
+
+    render();
+
+  }
+
+
+  function updateNavigationButtons() {
+
+    const backButton =
+      document.getElementById(
+        "backButton"
+      );
+
+    if (!backButton) {
+      return;
+    }
+
+    backButton.disabled =
+      navigationHistory.length === 0;
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
    * FILTER PAPERS
    * ---------------------------------------------------------
    *
@@ -1783,6 +2175,15 @@
     filterPapers();
 
     renderResults();
+
+    /*
+     * The view is now fully rendered, so it becomes the
+     * reference point for the next Back action.
+     */
+    lastViewSnapshot =
+      getViewSnapshot();
+
+    updateNavigationButtons();
 
   }
 
@@ -2047,9 +2448,12 @@
     document.getElementById("institutionChips").innerHTML = "";
 
     currentPage = 1;
-    lastFilterState = null;
 
-    render();
+    /*
+     * The previous view is automatically saved by
+     * applyFilterChange() before the new author filter renders.
+     */
+    applyFilterChange();
 
     window.scrollTo({
       top: 0,
@@ -2130,6 +2534,8 @@
 
             currentPage--;
 
+            pushCurrentViewToHistory();
+
             /*
              * IMPORTANT:
              *
@@ -2165,6 +2571,8 @@
           ) {
 
             currentPage++;
+
+            pushCurrentViewToHistory();
 
             render();
 
