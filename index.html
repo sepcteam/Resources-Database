@@ -54,6 +54,12 @@
     letter-spacing: -0.01em;
   }
 
+  .header-subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
   .header-nav {
     margin-left: auto;
     display: flex;
@@ -74,7 +80,7 @@
 
   .page-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-columns: minmax(0, 900px) 280px;
     gap: 24px;
     align-items: start;
   }
@@ -91,7 +97,7 @@
     margin-bottom: 0;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 960px) {
     .page-layout {
       grid-template-columns: 1fr;
     }
@@ -106,7 +112,7 @@
   }
 
   .wrap {
-    max-width: 900px;
+    max-width: 1220px;
     margin: 0 auto;
     padding: 40px 20px 80px;
   }
@@ -306,15 +312,13 @@
 
   .multiselect-dropdown {
     display: none;
-    position: absolute;
+    position: static;
     z-index: 20;
-    top: 100%;
-    left: 0;
-    right: 0;
+    width: 100%;
+    margin-top: 4px;
     background: var(--card-bg);
     border: 1.5px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
+    border-radius: 8px;
     max-height: 220px;
     overflow-y: auto;
   }
@@ -550,6 +554,7 @@
   <div class="header-left">
     <img src="SEPC.png" alt="SEPC logo">
     <div class="header-title">Papers Database</div>
+    <div class="header-subtitle">Courtesy of the SEPC team</div>
   </div>
 
   <nav class="header-nav" aria-label="Main navigation">
@@ -562,12 +567,6 @@
   <div class="page-layout">
 
     <main class="main-content">
-      <h1>Papers Database</h1>
-
-      <p class="subtitle">
-        Courtesy of the SEPC team
-      </p>
-
       <div class="controls">
         <div class="search-wrap">
 
