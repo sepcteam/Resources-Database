@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -504,9 +505,9 @@
       <div class="filter-group">
         <label>Year range</label>
         <div class="year-range">
-          <input type="number" id="yearFrom" placeholder="From">
+          <input type="number" id="yearFrom" placeholder="From" min="0" step="1" inputmode="numeric">
           <span>&ndash;</span>
-          <input type="number" id="yearTo" placeholder="To">
+          <input type="number" id="yearTo" placeholder="To" min="0" step="1" inputmode="numeric">
         </div>
       </div>
 
@@ -616,8 +617,32 @@
   const debouncedFilterChange = debounce(applyFilterChange, 150);
 
   document.getElementById("search").addEventListener("input", debouncedFilterChange);
-  document.getElementById("yearFrom").addEventListener("input", debouncedFilterChange);
-  document.getElementById("yearTo").addEventListener("input", debouncedFilterChange);
+
+  // Year inputs: allow only whole numbers >= 0.
+  function sanitizeYearInput(input) {
+    let value = input.value;
+
+    // Remove anything that isn't a digit.
+    value = value.replace(/[^\d]/g, "");
+
+    // Remove leading zeroes while keeping a single zero.
+    if (value.length > 1) {
+      value = value.replace(/^0+/, "");
+      if (value === "") value = "0";
+    }
+
+    input.value = value;
+  }
+
+  document.getElementById("yearFrom").addEventListener("input", function () {
+    sanitizeYearInput(this);
+    debouncedFilterChange();
+  });
+
+  document.getElementById("yearTo").addEventListener("input", function () {
+    sanitizeYearInput(this);
+    debouncedFilterChange();
+  });
 
   document.getElementById("pageSize").addEventListener("change", (e) => {
     pageSize = parseInt(e.target.value);
@@ -634,6 +659,8 @@
     selectedInstitutions.clear();
     document.getElementById("authorChips").innerHTML = "";
     document.getElementById("institutionChips").innerHTML = "";
+    document.getElementById("authorSearch").value = "";
+    document.getElementById("institutionSearch").value = "";
     document.getElementById("yearFrom").value = "";
     document.getElementById("yearTo").value = "";
     applyFilterChange();
@@ -646,7 +673,7 @@
   });
 
   // Generic searchable multi-select: shows chips for selected values, a text input
-  // with a filtered dropdown of remaining options, and click-outside-to-close behaviour.
+  // with a filtered dropdown of ALL remaining options, and click-outside-to-close behaviour.
   function buildMultiselect(inputId, dropdownId, chipsId, optionsList, selectedSet) {
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
@@ -656,6 +683,7 @@
       chipsEl.innerHTML = [...selectedSet].map(v => `
         <span class="chip">${v}<button type="button" data-value="${v}">&times;</button></span>
       `).join("");
+
       chipsEl.querySelectorAll("button").forEach(btn => {
         btn.addEventListener("click", () => {
           selectedSet.delete(btn.dataset.value);
@@ -667,12 +695,16 @@
 
     function renderDropdown(query) {
       const q = query.toLowerCase();
+
+      // Show ALL matching options instead of limiting the dropdown to 50.
+      // The CSS max-height + overflow-y:auto makes the full list scrollable.
       const matches = optionsList
-        .filter(o => !selectedSet.has(o) && o.toLowerCase().includes(q))
-        .slice(0, 50);
+        .filter(o => !selectedSet.has(o) && o.toLowerCase().includes(q));
+
       dropdown.innerHTML = matches.length
         ? matches.map(o => `<div class="option" data-value="${o}">${o}</div>`).join("")
         : `<div class="no-results">No matches</div>`;
+
       dropdown.querySelectorAll(".option").forEach(opt => {
         opt.addEventListener("click", () => {
           selectedSet.add(opt.dataset.value);
@@ -718,7 +750,7 @@
   }
 
   // Formats a row into an IEEE-style reference string from its structured fields.
-  // Authors are stored ";"-separated for reliable filtering, but displayed comma-separated.
+  // Authors are stored "; "-separated for reliable filtering, but displayed comma-separated.
   function formatIEEE(p, query) {
     let ref = "";
     if (p.authorList.length) ref += `${highlightMatch(p.authorList.join(", "), query)}, `;
@@ -735,23 +767,48 @@
   function render() {
     const rawQuery = document.getElementById("search").value;
     const q = rawQuery.toLowerCase();
-    const yearFrom = parseInt(document.getElementById("yearFrom").value) || null;
-    const yearTo = parseInt(document.getElementById("yearTo").value) || null;
+
+    const yearFromRaw = document.getElementById("yearFrom").value;
+    const yearToRaw = document.getElementById("yearTo").value;
+
+    const yearFrom = yearFromRaw === "" ? null : parseInt(yearFromRaw, 10);
+    const yearTo = yearToRaw === "" ? null : parseInt(yearToRaw, 10);
 
     let list = papers.filter(p => {
       const matchesSearch = !q || p.searchText.includes(q);
-      const yearVal = parseInt(p.year) || 0;
-      const matchesYearFrom = !yearFrom || yearVal >= yearFrom;
-      const matchesYearTo = !yearTo || yearVal <= yearTo;
-      const matchesAuthor = selectedAuthors.size === 0 || p.authorList.some(a => selectedAuthors.has(a));
-      const matchesInstitution = selectedInstitutions.size === 0 || p.institutionList.some(i => selectedInstitutions.has(i));
-      return matchesSearch && matchesYearFrom && matchesYearTo && matchesAuthor && matchesInstitution;
+
+      const yearVal = parseInt(p.year, 10) || 0;
+
+      const matchesYearFrom =
+        yearFrom === null || yearVal >= yearFrom;
+
+      const matchesYearTo =
+        yearTo === null || yearVal <= yearTo;
+
+      const matchesAuthor =
+        selectedAuthors.size === 0 ||
+        p.authorList.some(a => selectedAuthors.has(a));
+
+      const matchesInstitution =
+        selectedInstitutions.size === 0 ||
+        p.institutionList.some(i => selectedInstitutions.has(i));
+
+      return matchesSearch &&
+             matchesYearFrom &&
+             matchesYearTo &&
+             matchesAuthor &&
+             matchesInstitution;
     });
 
     list.sort((a, b) => {
       let va = (a[sortKey] || "").toString().toLowerCase();
       let vb = (b[sortKey] || "").toString().toLowerCase();
-      if (sortKey === "year") { va = parseInt(va) || 0; vb = parseInt(vb) || 0; }
+
+      if (sortKey === "year") {
+        va = parseInt(va, 10) || 0;
+        vb = parseInt(vb, 10) || 0;
+      }
+
       if (va < vb) return sortDir === "asc" ? -1 : 1;
       if (va > vb) return sortDir === "asc" ? 1 : -1;
       return 0;
@@ -761,7 +818,9 @@
       `${list.length} paper${list.length === 1 ? "" : "s"}`;
 
     const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+
     if (currentPage > totalPages) currentPage = totalPages;
+
     const startIdx = (currentPage - 1) * pageSize;
     const pageItems = list.slice(startIdx, startIdx + pageSize);
 
@@ -801,6 +860,7 @@
   // only changes currentPage and re-renders — it does not touch any filter.
   function renderPagination(totalPages) {
     const el = document.getElementById("pagination");
+
     if (totalPages <= 1) {
       el.innerHTML = "";
       return;
@@ -816,7 +876,10 @@
       if (currentPage > 1) {
         currentPage--;
         render();
-        document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector(".wrap").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
     });
 
@@ -824,7 +887,10 @@
       if (currentPage < totalPages) {
         currentPage++;
         render();
-        document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector(".wrap").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
     });
   }
@@ -837,11 +903,16 @@
     if (!paperEl) return;
 
     const isOpen = paperEl.classList.toggle("expanded");
+
     if (isOpen) {
       const iframe = paperEl.querySelector(".paper-pdf iframe");
-      if (iframe && !iframe.src) iframe.src = iframe.dataset.src;
+
+      if (iframe && !iframe.src) {
+        iframe.src = iframe.dataset.src;
+      }
     }
   });
 </script>
 </body>
 </html>
+```
