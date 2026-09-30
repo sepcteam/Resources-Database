@@ -397,6 +397,20 @@
   display: block;
 }
 
+.author-profile-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.author-profile-count {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}
+  
 .upload-box {
   visibility: hidden;
 background: transparent !important;
@@ -945,12 +959,18 @@ background: transparent;
     if (!controlsEl) return;
   
     const rect = controlsEl.getBoundingClientRect();
-  
+     
+    // const authorProfileEl = document.getElementById("authorProfile");
+    // if (authorProfileEl) {
+    //   const w = authorProfileEl.offsetWidth || 200;
+    //   const left = Math.max(12, rect.left / 2 - w / 2);
+    //   let top = rect.top;
     const authorProfileEl = document.getElementById("authorProfile");
-    if (authorProfileEl) {
-      const w = authorProfileEl.offsetWidth || 200;
-      const left = Math.max(12, rect.left / 2 - w / 2);
-      let top = rect.top;
+      if (authorProfileEl) {
+        const w = authorProfileEl.offsetWidth || 200;
+        authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
+        authorProfileEl.style.top = `${rect.top}px`;
+      }
 
       const navEl = document.querySelector(".navigation-actions");
       if (navEl) {
