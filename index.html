@@ -413,7 +413,20 @@ background: transparent !important;
   text-align: center;
   cursor: pointer;
   z-index: 15;
+  overflow: hidden;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.upload-box.compact .upload-box-hint {
+  display: none;
+}
+
+.upload-box.tiny {
+  padding: 8px;
+}
+
+.upload-box.tiny svg {
+  display: none;
 }
 
 .upload-box.dragover {
@@ -935,8 +948,19 @@ background: transparent;
     const authorProfileEl = document.getElementById("authorProfile");
     if (authorProfileEl) {
       const w = authorProfileEl.offsetWidth || 200;
-      authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
-      authorProfileEl.style.top = `${rect.top}px`;
+      const left = Math.max(12, rect.left / 2 - w / 2);
+      let top = rect.top;
+
+      const navEl = document.querySelector(".navigation-actions");
+      if (navEl) {
+        const n = navEl.getBoundingClientRect();
+        if (left < n.right && left + w > n.left) {
+          top = Math.max(top, n.bottom + 12);
+        }
+      }
+
+      authorProfileEl.style.left = `${left}px`;
+      authorProfileEl.style.top = `${top}px`;
     }
   
     const uploadBoxEl = document.getElementById("uploadBox");
@@ -948,10 +972,68 @@ background: transparent;
       uploadBoxEl.style.top = "auto";
       uploadBoxEl.style.bottom = "24px";
     }
+
+    fitUploadBox();
+  }
+
+  function fitUploadBox() {
+    const box = document.getElementById("uploadBox");
+    const panel = document.getElementById("filterPanel");
+    if (!box) return;
+
+    box.style.display = "";
+    box.style.height = "";
+    box.style.minHeight = "";
+    box.classList.remove("compact", "tiny");
+
+    if (!panel || !panel.classList.contains("open")) return;
+
+    const gap = 12;
+    const p = panel.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+
+    if (p.left >= b.right || p.right <= b.left) return;
+    if (p.bottom <= 0 || p.top >= window.innerHeight) return;
+    if (p.top >= b.bottom) return;
+    if (p.bottom + gap <= b.top) return;
+
+    const available = b.bottom - p.bottom - gap;
+
+    box.style.minHeight = "0";
+    box.classList.add("compact");
+
+    if (available >= box.offsetHeight) return;
+
+    box.classList.add("tiny");
+
+    if (available >= box.offsetHeight) return;
+
+    box.style.display = "none";
+  }
+
+  let fitFrame = null;
+
+  function scheduleFitUploadBox() {
+    if (fitFrame !== null) return;
+    fitFrame = requestAnimationFrame(() => {
+      fitFrame = null;
+      fitUploadBox();
+    });
   }
 
   window.addEventListener("load", positionMarginBoxes);
   window.addEventListener("resize", positionMarginBoxes);
+  window.addEventListener("scroll", scheduleFitUploadBox, { passive: true });
+
+  const filterPanelEl = document.getElementById("filterPanel");
+
+  if (window.ResizeObserver && filterPanelEl) {
+    new ResizeObserver(scheduleFitUploadBox).observe(filterPanelEl);
+  }
+
+  document
+    .getElementById("filterToggle")
+    .addEventListener("click", scheduleFitUploadBox);
 
   const uploadBox = document.getElementById("uploadBox");
   const uploadFileInput = document.getElementById("uploadFileInput");
@@ -3059,15 +3141,5 @@ function showAuthorProfile(author) {
 
 </script>
 
-<div class="upload-box" id="uploadBox">
-  <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 16V4M12 4L7 9M12 4l5 5"></path>
-    <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
-  </svg>
-  <div class="upload-box-text">Click or drag a paper here to submit</div>
-  <div class="upload-box-hint">Please format the title in IEEE reference style.<br>Submissions are reviewed before being added.</div>
-</div>
-  
 </body>
 </html>
