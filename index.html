@@ -512,11 +512,12 @@
     color: var(--text);
   }
 
+  
   .paper-ref em {
     font-style: italic;
   }
 
-  .paper-ref mark {
+  .paper mark {
     background: rgba(54, 179, 255, 0.28);
     color: var(--accent-dark);
     font-weight: 600;
@@ -524,6 +525,12 @@
     padding: 0 1px;
   }
 
+  .paper-institution {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0 0 10px;
+  }
+  
   .paper-links a {
     color: var(--accent-dark);
     text-decoration: none;
@@ -2437,7 +2444,7 @@
                   ${p.tags
                     .map(
                       t =>
-                        `<span>${escapeHtml(t)}</span>`
+                        `<span>${highlightMatch(t, rawQuery)}</span>`
                     )
                     .join("")}
                 </div>
@@ -2457,6 +2464,12 @@
                 )}
               </p>
 
+              ${
+                p.institutionList.length
+                  ? `<p class="paper-institution">${highlightMatch(p.institutionList.join(", "), rawQuery)}</p>`
+                  : ""
+              }
+              
 
               ${
                 p.pdf_url
