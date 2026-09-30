@@ -413,20 +413,7 @@ background: transparent !important;
   text-align: center;
   cursor: pointer;
   z-index: 15;
-  overflow: hidden;
   transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.upload-box.compact .upload-box-hint {
-  display: none;
-}
-
-.upload-box.tiny {
-  padding: 8px;
-}
-
-.upload-box.tiny svg {
-  display: none;
 }
 
 .upload-box.dragover {
@@ -948,19 +935,8 @@ background: transparent;
     const authorProfileEl = document.getElementById("authorProfile");
     if (authorProfileEl) {
       const w = authorProfileEl.offsetWidth || 200;
-      const left = Math.max(12, rect.left / 2 - w / 2);
-      let top = rect.top;
-
-      const navEl = document.querySelector(".navigation-actions");
-      if (navEl) {
-        const n = navEl.getBoundingClientRect();
-        if (left < n.right && left + w > n.left) {
-          top = Math.max(top, n.bottom + 12);
-        }
-      }
-
-      authorProfileEl.style.left = `${left}px`;
-      authorProfileEl.style.top = `${top}px`;
+      authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
+      authorProfileEl.style.top = `${rect.top}px`;
     }
   
     const uploadBoxEl = document.getElementById("uploadBox");
@@ -972,166 +948,66 @@ background: transparent;
       uploadBoxEl.style.top = "auto";
       uploadBoxEl.style.bottom = "24px";
     }
-
-    fitUploadBox();
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * UPLOAD BOX COLLISION HANDLING
-   * ---------------------------------------------------------
-   *
-   * Anything that can sit above the upload box is treated as
-   * an obstruction:
-   *
-   *   - the filter panel (when open)
-   *   - EVERY open multiselect dropdown
-   *
-   * Dropdowns are checked on their own, not just through the
-   * panel that contains them. If a dropdown is ever given
-   * position: absolute (so it can extend past the panel's
-   * bounds), the upload box still reacts to it.
-   *
-   * The upload box is anchored to the bottom of the viewport,
-   * so each obstruction limits how much vertical room is left.
-   * The tightest limit across all overlapping obstructions
-   * decides whether the box stays full size, goes compact,
-   * goes tiny, or is hidden.
-   */
-
-  function getUploadObstructions() {
-    const obstructions = [];
-
-    const panel = document.getElementById("filterPanel");
-    if (panel && panel.classList.contains("open")) {
-      obstructions.push(panel);
-    }
-
-    document
-      .querySelectorAll(".multiselect-dropdown.open")
-      .forEach(dropdown => obstructions.push(dropdown));
-
-    return obstructions;
   }
 
   function fitUploadBox() {
     const box = document.getElementById("uploadBox");
     if (!box) return;
 
-    /*
-     * Reset to the full-size state, then measure.
-     */
     box.style.display = "";
     box.style.height = "";
     box.style.minHeight = "";
-    box.classList.remove("compact", "tiny");
 
-    const obstructions = getUploadObstructions();
-    if (!obstructions.length) return;
+    const blockers = [
+      ...document.querySelectorAll(
+        "#filterPanel.open, .multiselect-dropdown.open"
+      )
+    ];
 
-    const gap = 6;
+    if (!blockers.length) return;
+
     const b = box.getBoundingClientRect();
 
-    /*
-     * Vertical room left below the lowest overlapping
-     * obstruction. Stays Infinity if nothing overlaps.
-     */
-    let available = Infinity;
+    const collisions = blockers
+      .map(el => el.getBoundingClientRect())
+      .filter(r =>
+        r.left < b.right &&
+        r.right > b.left &&
+        r.top < b.bottom &&
+        r.bottom > b.top
+      );
 
-    obstructions.forEach(el => {
-      const r = el.getBoundingClientRect();
+    if (!collisions.length) return;
 
-      // Not rendered (display: none, detached, etc.)
-      if (r.width === 0 && r.height === 0) return;
-
-      // No horizontal overlap
-      if (r.left >= b.right || r.right <= b.left) return;
-
-      // Entirely off-screen vertically
-      if (r.bottom <= 0 || r.top >= window.innerHeight) return;
-
-      // Entirely below the upload box
-      if (r.top >= b.bottom) return;
-
-      // Entirely above the upload box with clearance to spare
-      if (r.bottom + gap <= b.top) return;
-
-      available = Math.min(available, b.bottom - r.bottom - gap);
-    });
-
-    if (available === Infinity) return;
-
-    /*
-     * Step 1: drop the hint text.
-     */
-    box.style.minHeight = "0";
-    box.classList.add("compact");
-
-    if (available >= box.offsetHeight) return;
-
-    /*
-     * Step 2: drop the icon and tighten the padding.
-     */
-    box.classList.add("tiny");
-
-    if (available >= box.offsetHeight) return;
-
-    /*
-     * Step 3: nothing fits, so hide the box rather than let
-     * it sit underneath the obstruction.
-     */
-    box.style.display = "none";
-  }
-
-  let fitFrame = null;
-
-  function scheduleFitUploadBox() {
-    if (fitFrame !== null) return;
-    fitFrame = requestAnimationFrame(() => {
-      fitFrame = null;
-      fitUploadBox();
-    });
-  }
-
-  window.addEventListener("load", positionMarginBoxes);
-  window.addEventListener("resize", positionMarginBoxes);
-  window.addEventListener("scroll", scheduleFitUploadBox, { passive: true });
-
-  /*
-   * Re-fit whenever an obstruction changes size or visibility.
-   *
-   *  - ResizeObserver catches the panel and each dropdown
-   *    growing/shrinking (e.g. the option list being filtered).
-   *  - MutationObserver catches a dropdown's "open" class being
-   *    toggled, which a ResizeObserver alone would miss if the
-   *    dropdown is taken out of normal flow.
-   */
-
-  const filterPanelEl = document.getElementById("filterPanel");
-
-  const obstructionEls = [
-    filterPanelEl,
-    ...document.querySelectorAll(".multiselect-dropdown")
-  ].filter(Boolean);
-
-  if (window.ResizeObserver) {
-    const resizeObserver = new ResizeObserver(scheduleFitUploadBox);
-    obstructionEls.forEach(el => resizeObserver.observe(el));
-  }
-
-  if (window.MutationObserver) {
-    const mutationObserver = new MutationObserver(scheduleFitUploadBox);
-    obstructionEls.forEach(el =>
-      mutationObserver.observe(el, {
-        attributes: true,
-        attributeFilter: ["class"]
-      })
+    const lowestBlocker = Math.max(
+      ...collisions.map(r => r.bottom)
     );
+
+    const gap = 6;
+    const available = b.bottom - lowestBlocker - gap;
+
+    box.style.minHeight = "0";
+
+    if (available <= 0) {
+      box.style.display = "none";
+      return;
+    }
+
+    box.style.height = `${Math.max(100, available)}px`;
+
+    if (available < 100) {
+      box.style.display = "none";
+    }
   }
 
-  document
-    .getElementById("filterToggle")
-    .addEventListener("click", scheduleFitUploadBox);
+  window.addEventListener("load", () => {
+    positionMarginBoxes();
+    fitUploadBox();
+  });
+  window.addEventListener("resize", () => {
+    positionMarginBoxes();
+    fitUploadBox();
+  });
 
   const uploadBox = document.getElementById("uploadBox");
   const uploadFileInput = document.getElementById("uploadFileInput");
@@ -1157,59 +1033,14 @@ background: transparent;
     handleUploadedFiles(e.dataTransfer.files);
   });
   
-  const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbzpDCD_Lxc-x3IkNDBtDwTv8erJeZDFbHNyyf-NujOPPW8eieAJXWV6Id5juSb8hif4VA/exec";
-  const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
-
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result).split(",")[1]);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handleUploadedFiles(fileList) {
+  function handleUploadedFiles(fileList) {
     const files = [...fileList];
     if (!files.length) return;
-
-    const label = document.querySelector(".upload-box-text");
-    const original = label.textContent;
-
-    const pdfs = files.filter(f => f.type === "application/pdf" && f.size <= MAX_UPLOAD_BYTES);
-    const skipped = files.length - pdfs.length;
-
-    let sent = 0;
-    let failed = 0;
-
-    for (const file of pdfs) {
-      label.textContent = `Uploading ${sent + failed + 1} of ${pdfs.length}…`;
-      try {
-        const res = await fetch(UPLOAD_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            name: file.name,
-            mimeType: file.type,
-            base64: await fileToBase64(file),
-            website: ""
-          })
-        });
-        const result = await res.json();
-        result.ok ? sent++ : failed++;
-      } catch (err) {
-        failed++;
-      }
-    }
-
-    uploadFileInput.value = "";
-
-    label.textContent =
-      `${sent} submitted` +
-      (failed ? `, ${failed} failed` : "") +
-      (skipped ? `, ${skipped} skipped (PDF under 15 MB only)` : "");
-
-    setTimeout(() => { label.textContent = original; }, 5000);
+  
+    // PLACEHOLDER — there's nowhere for these files to go yet.
+    // Once you pick Google Forms or GitHub Issues, this function
+    // gets replaced with the real submission logic.
+    alert(`Received ${files.length} file(s). Submission handling isn't wired up yet.`);
   }
   
   const CSV_URL = "Papers.csv";
@@ -1656,6 +1487,10 @@ background: transparent;
         .getElementById("filterToggle")
         .classList.toggle("active");
 
+      requestAnimationFrame(() => {
+        fitUploadBox();
+      });
+
     });
 
 
@@ -1925,14 +1760,30 @@ background: transparent;
 
       applyFilterChange();
 
+      requestAnimationFrame(() => {
+        fitUploadBox();
+      });
+
     });
 
 
     input.addEventListener("focus", () => {
 
+      document
+        .querySelectorAll(".multiselect-dropdown.open")
+        .forEach(openDropdown => {
+          if (openDropdown !== dropdown) {
+            openDropdown.classList.remove("open");
+          }
+        });
+
       renderDropdown(input.value);
 
       dropdown.classList.add("open");
+
+      requestAnimationFrame(() => {
+        fitUploadBox();
+      });
 
     });
 
@@ -1942,6 +1793,10 @@ background: transparent;
       renderDropdown(input.value);
 
       dropdown.classList.add("open");
+
+      requestAnimationFrame(() => {
+        fitUploadBox();
+      });
 
     });
 
@@ -1958,6 +1813,10 @@ background: transparent;
       ) {
 
         dropdown.classList.remove("open");
+
+        requestAnimationFrame(() => {
+          fitUploadBox();
+        });
 
       }
 
@@ -3284,5 +3143,15 @@ function showAuthorProfile(author) {
 
 </script>
 
+<div class="upload-box" id="uploadBox">
+  <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16V4M12 4L7 9M12 4l5 5"></path>
+    <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+  </svg>
+  <div class="upload-box-text">Click or drag a paper here to submit</div>
+  <div class="upload-box-hint">Please format the title in IEEE reference style.<br>Submissions are reviewed before being added.</div>
+</div>
+  
 </body>
 </html>
