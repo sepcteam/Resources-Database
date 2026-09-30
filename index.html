@@ -398,6 +398,7 @@
 }
 
 .upload-box {
+background: transparent;
   position: fixed;
   width: 220px;
   min-height: 140px;
@@ -689,6 +690,27 @@
   color: white;
 }
   
+
+  @media (max-width: 960px) {
+    .author-profile {
+      position: fixed;
+      left: 12px !important;
+      right: 12px;
+      width: auto;
+      top: auto !important;
+      bottom: 180px;
+    }
+
+    .upload-box {
+background: transparent;
+      left: 12px !important;
+      right: 12px;
+      bottom: 20px !important;
+      width: auto;
+      min-height: 120px;
+    }
+  }
+
 </style>
 </head>
 
@@ -886,6 +908,20 @@
 
 </div>
 
+<div class="upload-box" id="uploadBox">
+  <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 16V4M12 4L7 9M12 4l5 5"></path>
+    <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+  </svg>
+  <div class="upload-box-text">Click or drag a paper here to submit</div>
+  <div class="upload-box-hint">
+    Please format the title in IEEE reference style.<br>
+    Submissions are reviewed before being added.
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <script>
@@ -899,7 +935,7 @@
     const authorProfileEl = document.getElementById("authorProfile");
     if (authorProfileEl) {
       const w = authorProfileEl.offsetWidth || 200;
-      authorProfileEl.style.left = `${rect.left / 2 - w / 2}px`;
+      authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
       authorProfileEl.style.top = `${rect.top}px`;
     }
   
@@ -908,8 +944,9 @@
       const w = uploadBoxEl.offsetWidth || 220;
       const gapStart = rect.right;
       const gapWidth = window.innerWidth - gapStart;
-      uploadBoxEl.style.left = `${gapStart + gapWidth / 2 - w / 2}px`;
-      uploadBoxEl.style.top = `${rect.top}px`;
+      uploadBoxEl.style.left = `${Math.max(12, gapStart + gapWidth / 2 - w / 2)}px`;
+      uploadBoxEl.style.top = "auto";
+      uploadBoxEl.style.bottom = "24px";
     }
   }
 
