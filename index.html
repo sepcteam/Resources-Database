@@ -1157,14 +1157,59 @@ background: transparent;
     handleUploadedFiles(e.dataTransfer.files);
   });
   
-  function handleUploadedFiles(fileList) {
+  const UPLOAD_URL = "https://script.google.com/home/projects/1WpWd0IkNpt-zq9LqkKRgYoBxTd1dOPN-K9MRg_XwIMiQnmpLHtKQyrwn/edit";
+  const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1]);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleUploadedFiles(fileList) {
     const files = [...fileList];
     if (!files.length) return;
-  
-    // PLACEHOLDER — there's nowhere for these files to go yet.
-    // Once you pick Google Forms or GitHub Issues, this function
-    // gets replaced with the real submission logic.
-    alert(`Received ${files.length} file(s). Submission handling isn't wired up yet.`);
+
+    const label = document.querySelector(".upload-box-text");
+    const original = label.textContent;
+
+    const pdfs = files.filter(f => f.type === "application/pdf" && f.size <= MAX_UPLOAD_BYTES);
+    const skipped = files.length - pdfs.length;
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const file of pdfs) {
+      label.textContent = `Uploading ${sent + failed + 1} of ${pdfs.length}…`;
+      try {
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            name: file.name,
+            mimeType: file.type,
+            base64: await fileToBase64(file),
+            website: ""
+          })
+        });
+        const result = await res.json();
+        result.ok ? sent++ : failed++;
+      } catch (err) {
+        failed++;
+      }
+    }
+
+    uploadFileInput.value = "";
+
+    label.textContent =
+      `${sent} submitted` +
+      (failed ? `, ${failed} failed` : "") +
+      (skipped ? `, ${skipped} skipped (PDF under 15 MB only)` : "");
+
+    setTimeout(() => { label.textContent = original; }, 5000);
   }
   
   const CSV_URL = "Papers.csv";
