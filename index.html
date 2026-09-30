@@ -382,40 +382,66 @@
   gap: 8px;
   }
   
-    .author-profile {
-    display: none;
-    position: absolute;
-    right: 100%;
-    top: calc(100% + 12px);
-    margin-right: 12px;
-    width: 200px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
-  }
+.author-profile {
+  display: none;
+  position: fixed;
+  width: 200px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  z-index: 15;
+}
 
-  .author-profile.visible {
-    display: block;
-  }
+.author-profile.visible {
+  display: block;
+}
 
-  .author-profile-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
+.upload-box {
+  position: fixed;
+  width: 220px;
+  min-height: 140px;
+  background: #f5f5f5;
+  border: 2px dashed #333;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  z-index: 15;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
 
-  .author-profile-count {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
+.upload-box.dragover {
+  background: #eaf7ff;
+  border-color: var(--accent);
+}
 
-  .author-profile-institutions {
-    font-size: 0.78rem;
-    color: var(--accent-dark);
-    line-height: 1.6;
-  }
+.upload-box svg {
+  width: 32px;
+  height: 32px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.upload-box-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.upload-box-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.upload-box input[type="file"] {
+  display: none;
+}
 
   .navigation-btn {
     padding: 8px 14px;
@@ -708,7 +734,7 @@
         <aside class="author-profile" id="authorProfile">
           <div class="author-profile-name" id="authorProfileName"></div>
           <div class="author-profile-count" id="authorProfileCount"></div>
-          <div class="author-profile-institutions" id="authorProfileInstitutions"></div>
+          
         </aside>
 
         <div class="search-wrap">
@@ -864,6 +890,66 @@
 
 <script>
 
+    function positionMarginBoxes() {
+    const controlsEl = document.querySelector(".controls");
+    if (!controlsEl) return;
+  
+    const rect = controlsEl.getBoundingClientRect();
+  
+    const authorProfileEl = document.getElementById("authorProfile");
+    if (authorProfileEl) {
+      const w = authorProfileEl.offsetWidth || 200;
+      authorProfileEl.style.left = `${rect.left / 2 - w / 2}px`;
+      authorProfileEl.style.top = `${rect.top}px`;
+    }
+  
+    const uploadBoxEl = document.getElementById("uploadBox");
+    if (uploadBoxEl) {
+      const w = uploadBoxEl.offsetWidth || 220;
+      const gapStart = rect.right;
+      const gapWidth = window.innerWidth - gapStart;
+      uploadBoxEl.style.left = `${gapStart + gapWidth / 2 - w / 2}px`;
+      uploadBoxEl.style.top = `${rect.top}px`;
+    }
+  }
+
+  window.addEventListener("load", positionMarginBoxes);
+  window.addEventListener("resize", positionMarginBoxes);
+
+  const uploadBox = document.getElementById("uploadBox");
+  const uploadFileInput = document.getElementById("uploadFileInput");
+  
+  uploadBox.addEventListener("click", () => uploadFileInput.click());
+  
+  uploadFileInput.addEventListener("change", () => {
+    handleUploadedFiles(uploadFileInput.files);
+  });
+  
+  uploadBox.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadBox.classList.add("dragover");
+  });
+  
+  uploadBox.addEventListener("dragleave", () => {
+    uploadBox.classList.remove("dragover");
+  });
+  
+  uploadBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadBox.classList.remove("dragover");
+    handleUploadedFiles(e.dataTransfer.files);
+  });
+  
+  function handleUploadedFiles(fileList) {
+    const files = [...fileList];
+    if (!files.length) return;
+  
+    // PLACEHOLDER — there's nowhere for these files to go yet.
+    // Once you pick Google Forms or GitHub Issues, this function
+    // gets replaced with the real submission logic.
+    alert(`Received ${files.length} file(s). Submission handling isn't wired up yet.`);
+  }
+  
   const CSV_URL = "Papers.csv";
 
   let papers = [];
@@ -2644,44 +2730,23 @@
 
   }
 
-    function computeAuthorStats(author) {
+function computeAuthorStats(author) {
+  const papersByAuthor = papers.filter(p => p.authorList.includes(author));
+  return { count: papersByAuthor.length };
+}
 
-    const papersByAuthor =
-      papers.filter(p =>
-        p.authorList.includes(author)
-      );
+function showAuthorProfile(author) {
+  const stats = computeAuthorStats(author);
 
-    const institutions = [
-      ...new Set(
-        papersByAuthor.flatMap(p => p.institutionList)
-      )
-    ];
+  document.getElementById("authorProfileName").textContent = author;
+  document.getElementById("authorProfileCount").textContent =
+    `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
 
-    return {
-      count: papersByAuthor.length,
-      institutions
-    };
+  document.getElementById("authorProfile").classList.add("visible");
+  visibleAuthorProfile = author;
 
-  }
-
-
-  function showAuthorProfile(author) {
-
-    const stats = computeAuthorStats(author);
-
-    document.getElementById("authorProfileName").textContent = author;
-
-    document.getElementById("authorProfileCount").textContent =
-      `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
-
-    document.getElementById("authorProfileInstitutions").innerHTML =
-      stats.institutions.map(i => escapeHtml(i)).join("<br>");
-
-    document.getElementById("authorProfile").classList.add("visible");
-
-    visibleAuthorProfile = author;
-
-  }
+  positionMarginBoxes();
+}
 
 
   function hideAuthorProfile() {
@@ -2880,5 +2945,15 @@
 
 </script>
 
+<div class="upload-box" id="uploadBox">
+  <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16V4M12 4L7 9M12 4l5 5"></path>
+    <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+  </svg>
+  <div class="upload-box-text">Click or drag a paper here to submit</div>
+  <div class="upload-box-hint">Please format the title in IEEE reference style.<br>Submissions are reviewed before being added.</div>
+</div>
+  
 </body>
 </html>
