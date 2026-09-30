@@ -765,10 +765,7 @@
           </button>
         </div>
 
-        <aside class="author-profile" id="authorProfile">
-          <div class="author-profile-name" id="authorProfileName"></div>
-          <div class="author-profile-count" id="authorProfileCount"></div>
-        </aside>
+        
 
         <div class="search-wrap">
           <button
@@ -915,6 +912,11 @@
 
 </div>
 
+  <aside class="author-profile" id="authorProfile">
+    <div class="author-profile-name" id="authorProfileName"></div>
+    <div class="author-profile-count" id="authorProfileCount"></div>
+  </aside>
+  
 <div class="upload-box" id="uploadBox">
   <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1056,7 +1058,8 @@
 
   if (window.ResizeObserver) {
     const resizeObserver = new ResizeObserver(scheduleFitUploadBox);
-    obstructionsEls = obstructionEls.forEach(el => resizeObserver.observe(el));
+    // obstructionsEls = obstructionEls.forEach(el => resizeObserver.observe(el));
+    obstructionEls.forEach(el => resizeObserver.observe(el));
   }
 
   if (window.MutationObserver) {
