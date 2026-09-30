@@ -400,8 +400,6 @@
 .upload-box {
 background: transparent !important;
   position: fixed;
-  left: 24px;
-  bottom: 24px;
   width: 220px;
   min-height: 140px;
   background: transparent !important;
@@ -951,3 +949,2048 @@ background: transparent;
       uploadBoxEl.style.bottom = "24px";
     }
   }
+
+  window.addEventListener("load", positionMarginBoxes);
+  window.addEventListener("resize", positionMarginBoxes);
+
+  const uploadBox = document.getElementById("uploadBox");
+  const uploadFileInput = document.getElementById("uploadFileInput");
+  
+  uploadBox.addEventListener("click", () => uploadFileInput.click());
+  
+  uploadFileInput.addEventListener("change", () => {
+    handleUploadedFiles(uploadFileInput.files);
+  });
+  
+  uploadBox.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadBox.classList.add("dragover");
+  });
+  
+  uploadBox.addEventListener("dragleave", () => {
+    uploadBox.classList.remove("dragover");
+  });
+  
+  uploadBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadBox.classList.remove("dragover");
+    handleUploadedFiles(e.dataTransfer.files);
+  });
+  
+  function handleUploadedFiles(fileList) {
+    const files = [...fileList];
+    if (!files.length) return;
+  
+    // PLACEHOLDER — there's nowhere for these files to go yet.
+    // Once you pick Google Forms or GitHub Issues, this function
+    // gets replaced with the real submission logic.
+    alert(`Received ${files.length} file(s). Submission handling isn't wired up yet.`);
+  }
+  
+  const CSV_URL = "Papers.csv";
+
+  let papers = [];
+
+  let sortKey = "year";
+  let sortDir = "desc";
+
+  let currentPage = 1;
+  let pageSize = 50;
+
+  let visibleAuthorProfile = null;
+  
+  const selectedAuthors = new Set();
+  const selectedInstitutions = new Set();
+
+  /*
+   * Cache the currently filtered/sorted list.
+   *
+   * This is one of the important performance changes.
+   *
+   * Previously, clicking Prev/Next caused the entire filtering
+   * and sorting process to happen again.
+   *
+   * Now filtering only happens when a filter actually changes.
+   */
+  let filteredPapers = [];
+
+  /*
+   * Cache the current filter state.
+   *
+   * If render() is called simply because the page changed,
+   * we don't need to run the filters again.
+   */
+  let lastFilterState = null;
+
+  /*
+   * Navigation history.
+   *
+   * Each entry stores the complete database view immediately
+   * before the latest user action.
+   */
+  const navigationHistory = [];
+
+  let lastViewSnapshot = null;
+
+
+  /*
+   * ---------------------------------------------------------
+   * LOAD CSV
+   * ---------------------------------------------------------
+   */
+
+  Papa.parse(CSV_URL, {
+
+    download: true,
+
+    header: true,
+
+    skipEmptyLines: true,
+
+    complete: (r) => {
+
+      papers = r.data.map(p => {
+
+        /*
+         * Convert everything we need once during loading.
+         *
+         * This avoids repeatedly converting strings/numbers
+         * every time the user searches.
+         */
+
+        const authorList = String(p.authors || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const institutionList = String(p.institution || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const tags = String(p.tags || "")
+          .split(";")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const yearNumber = parseInt(p.year, 10) || 0;
+
+        /*
+         * Build exactly the searchable text we need.
+         *
+         * This is much cheaper than:
+         *
+         * Object.values(withLists).join(...)
+         *
+         * because that also includes the derived arrays and
+         * other properties.
+         */
+
+        const searchText = [
+          p.title,
+          p.authors,
+          p.institution,
+          p.year,
+          p.tags,
+          p.doi,
+          p.source,
+          p.journal,
+          p.volume,
+          p.issue,
+          p.pages
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return {
+          ...p,
+          authorList,
+          institutionList,
+          tags,
+          yearNumber,
+          searchText
+        };
+
+      });
+
+
+      /*
+       * -------------------------------------------------------
+       * BUILD AUTHOR / INSTITUTION LISTS
+       * -------------------------------------------------------
+       *
+       * All options are still kept.
+       *
+       * There is deliberately NO .slice(0, 50) here.
+       */
+
+      const authors = [
+        ...new Set(
+          papers.flatMap(p => p.authorList)
+        )
+      ].sort((a, b) =>
+        a.localeCompare(b)
+      );
+
+      const institutions = [
+        ...new Set(
+          papers.flatMap(p => p.institutionList)
+        )
+      ].sort((a, b) =>
+        a.localeCompare(b)
+      );
+
+
+      buildMultiselect(
+        "authorSearch",
+        "authorDropdown",
+        "authorChips",
+        authors,
+        selectedAuthors
+      );
+
+      buildMultiselect(
+        "institutionSearch",
+        "institutionDropdown",
+        "institutionChips",
+        institutions,
+        selectedInstitutions
+      );
+
+
+      /*
+       * Initial render.
+       */
+
+      applyFilterChange();
+
+    },
+
+    error: () => {
+
+      document.getElementById("results").innerHTML =
+        '<div class="empty">Could not load papers.csv — check the file exists in the same folder with this exact name and case.</div>';
+
+    }
+
+  });
+
+
+  /*
+   * ---------------------------------------------------------
+   * DEBOUNCE
+   * ---------------------------------------------------------
+   *
+   * Wait until the user pauses typing before filtering.
+   *
+   * 250 ms is enough to prevent a filter/render cycle from
+   * happening for every individual keystroke.
+   */
+
+  function debounce(fn, delay) {
+
+    let timer;
+
+    return function (...args) {
+
+      clearTimeout(timer);
+
+      timer = setTimeout(() => {
+
+        fn.apply(this, args);
+
+      }, delay);
+
+    };
+
+  }
+
+
+  const debouncedFilterChange =
+    debounce(applyFilterChange, 250);
+
+
+  /*
+   * ---------------------------------------------------------
+   * FILTER CHANGE
+   * ---------------------------------------------------------
+   */
+
+  function applyFilterChange() {
+
+    /*
+     * Save the view that existed immediately before this
+     * filter/search action.
+     */
+    pushCurrentViewToHistory();
+
+    currentPage = 1;
+
+    /*
+     * Force the filtering stage to run.
+     */
+
+    lastFilterState = null;
+
+    hideAuthorProfile();
+
+    render();
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * EVENT LISTENERS
+   * ---------------------------------------------------------
+   */
+
+  document
+    .getElementById("search")
+    .addEventListener(
+      "input",
+      debouncedFilterChange
+    );
+
+
+  /*
+   * Year inputs.
+   *
+   * Only allow digits.
+   * Prevent negative values.
+   */
+
+  function sanitizeYearInput(input) {
+
+    let value = input.value;
+
+    value = value.replace(/[^\d]/g, "");
+
+    /*
+     * Remove leading zeroes while preserving a single zero.
+     */
+
+    if (value.length > 1) {
+
+      value = value.replace(/^0+/, "");
+
+      if (value === "") {
+        value = "0";
+      }
+
+    }
+
+    input.value = value;
+
+  }
+
+
+  document
+    .getElementById("yearFrom")
+    .addEventListener("input", function () {
+
+      sanitizeYearInput(this);
+
+      debouncedFilterChange();
+
+    });
+
+
+  document
+    .getElementById("yearTo")
+    .addEventListener("input", function () {
+
+      sanitizeYearInput(this);
+
+      debouncedFilterChange();
+
+    });
+
+
+  /*
+   * Page size.
+   */
+
+  document
+    .getElementById("pageSize")
+    .addEventListener("change", (e) => {
+
+      pageSize =
+        parseInt(
+          e.target.value,
+          10
+        );
+
+      currentPage = 1;
+
+      pushCurrentViewToHistory();
+
+      /*
+       * No need to refilter.
+       *
+       * The underlying filtered list has not changed.
+       */
+
+      renderResults();
+
+      lastViewSnapshot =
+        getViewSnapshot();
+
+      updateNavigationButtons();
+
+    });
+
+
+  /*
+   * Filter panel toggle.
+   */
+
+  document
+    .getElementById("filterToggle")
+    .addEventListener("click", () => {
+
+      document
+        .getElementById("filterPanel")
+        .classList.toggle("open");
+
+      document
+        .getElementById("filterToggle")
+        .classList.toggle("active");
+
+    });
+
+
+  /*
+   * Clear filters.
+   */
+
+  document
+    .getElementById("clearFilters")
+    .addEventListener("click", () => {
+
+      selectedAuthors.clear();
+
+      selectedInstitutions.clear();
+
+      document.getElementById("authorSearch").value = "";
+      document.getElementById("institutionSearch").value = "";
+
+      document.getElementById("authorChips").innerHTML = "";
+      document.getElementById("institutionChips").innerHTML = "";
+
+      document.getElementById("yearFrom").value = "";
+      document.getElementById("yearTo").value = "";
+
+      applyFilterChange();
+
+    });
+
+
+  /*
+   * Search icon.
+   *
+   * Run immediately instead of waiting for debounce.
+   */
+
+  document
+    .getElementById("searchIconBtn")
+    .addEventListener("click", () => {
+
+      applyFilterChange();
+
+    });
+
+
+  /*
+   * ---------------------------------------------------------
+   * NAVIGATION BUTTONS
+   * ---------------------------------------------------------
+   */
+
+  document
+    .getElementById("backButton")
+    .addEventListener("click", () => {
+
+      if (
+        navigationHistory.length === 0
+      ) {
+        return;
+      }
+
+      const previousView =
+        navigationHistory.pop();
+
+      restoreViewSnapshot(
+        previousView
+      );
+
+      updateNavigationButtons();
+
+    });
+
+
+  document
+    .getElementById("backToAll")
+    .addEventListener("click", () => {
+
+      /*
+       * This is a deliberate jump rather than a history
+       * action, so it clears the Back history.
+       */
+      navigationHistory.length = 0;
+
+      hideAuthorProfile();
+      
+      selectedAuthors.clear();
+
+      selectedInstitutions.clear();
+
+      document.getElementById("search").value =
+        "";
+
+      document.getElementById("authorSearch").value =
+        "";
+
+      document.getElementById("institutionSearch").value =
+        "";
+
+      document.getElementById("authorChips").innerHTML =
+        "";
+
+      document.getElementById("institutionChips").innerHTML =
+        "";
+
+      document.getElementById("yearFrom").value =
+        "";
+
+      document.getElementById("yearTo").value =
+        "";
+
+      currentPage = 1;
+
+      lastFilterState = null;
+
+      render();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    });
+
+
+  /*
+   * ---------------------------------------------------------
+   * MULTISELECT
+   * ---------------------------------------------------------
+   */
+
+  function buildMultiselect(
+    inputId,
+    dropdownId,
+    chipsId,
+    optionsList,
+    selectedSet
+  ) {
+
+    const input =
+      document.getElementById(inputId);
+
+    const dropdown =
+      document.getElementById(dropdownId);
+
+    const chipsEl =
+      document.getElementById(chipsId);
+
+
+    /*
+     * Render selected chips.
+     *
+     * Event delegation is used instead of adding an event
+     * listener to every chip button individually.
+     */
+
+    function renderChips() {
+
+      chipsEl.innerHTML = [
+        ...selectedSet
+      ]
+        .map(v => `
+          <span class="chip">
+            ${escapeHtml(v)}
+            <button
+              type="button"
+              data-value="${escapeHtml(v)}"
+              aria-label="Remove ${escapeHtml(v)}"
+            >
+              &times;
+            </button>
+          </span>
+        `)
+        .join("");
+
+    }
+
+
+    /*
+     * Render dropdown.
+     *
+     * IMPORTANT:
+     *
+     * This still makes ALL matching options available.
+     *
+     * We are not limiting the list to 50.
+     *
+     * The dropdown remains scrollable exactly as requested.
+     */
+
+    function renderDropdown(query) {
+
+      const q = query.toLowerCase();
+
+      const matches = optionsList.filter(o =>
+        !selectedSet.has(o) &&
+        o.toLowerCase().includes(q)
+      );
+
+
+      dropdown.innerHTML = matches.length
+
+        ? matches
+            .map(o => `
+              <div
+                class="option"
+                data-value="${escapeHtml(o)}"
+              >
+                ${escapeHtml(o)}
+              </div>
+            `)
+            .join("")
+
+        : `<div class="no-results">No matches</div>`;
+
+    }
+
+
+    /*
+     * One click listener for all chips.
+     */
+
+    chipsEl.addEventListener("click", (e) => {
+
+      const btn =
+        e.target.closest("button[data-value]");
+
+      if (!btn) return;
+
+      selectedSet.delete(
+        btn.dataset.value
+      );
+
+      renderChips();
+
+      applyFilterChange();
+
+    });
+
+
+    /*
+     * One click listener for the entire dropdown.
+     *
+     * This is considerably cheaper than creating a new
+     * event listener for every option every time the list
+     * changes.
+     */
+
+    dropdown.addEventListener("click", (e) => {
+
+      const option =
+        e.target.closest(".option");
+
+      if (!option) return;
+
+      selectedSet.add(
+        option.dataset.value
+      );
+
+      input.value = "";
+
+      dropdown.classList.remove("open");
+
+      renderChips();
+
+      applyFilterChange();
+
+    });
+
+
+    input.addEventListener("focus", () => {
+
+      renderDropdown(input.value);
+
+      dropdown.classList.add("open");
+
+    });
+
+
+    input.addEventListener("input", () => {
+
+      renderDropdown(input.value);
+
+      dropdown.classList.add("open");
+
+    });
+
+
+    /*
+     * Click outside to close.
+     */
+
+    document.addEventListener("click", (e) => {
+
+      if (
+        !e.target.closest(`#${inputId}`) &&
+        !e.target.closest(`#${dropdownId}`)
+      ) {
+
+        dropdown.classList.remove("open");
+
+      }
+
+    });
+
+
+    renderChips();
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * HTML ESCAPING
+   * ---------------------------------------------------------
+   *
+   * Keeps CSV values from being interpreted as HTML.
+   */
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * REGEX ESCAPING
+   * ---------------------------------------------------------
+   */
+
+  function escapeRegExp(str) {
+
+    return str.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * PAPER SOURCE / HOST
+   * ---------------------------------------------------------
+   *
+   * This is intentionally modular.
+   *
+   * Preferred method:
+   * add a "source" column to the CSV, for example:
+   *
+   *   source
+   *   IEPC
+   *   EPS
+   *   AIAA
+   *
+   * If source is blank, IEPC is detected automatically from
+   * the journal/title so the existing database continues to
+   * work without a CSV change.
+   */
+
+  function getPaperSource(p) {
+
+    const explicitSource =
+      String(
+        p.source ||
+        p.Source ||
+        ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    if (
+      explicitSource === "iepc" ||
+      explicitSource.includes(
+        "international electric propulsion conference"
+      )
+    ) {
+
+      return {
+        key: "iepc",
+        label: "Hosted by ERPS"
+      };
+
+    }
+
+
+    const journal =
+      String(
+        p.journal || ""
+      )
+      .toLowerCase();
+
+
+    const title =
+      String(
+        p.title || ""
+      )
+      .toLowerCase();
+
+
+    if (
+      journal.includes("iepc") ||
+      journal.includes(
+        "international electric propulsion conference"
+      ) ||
+      title.includes("iepc")
+    ) {
+
+      return {
+        key: "iepc",
+        label: "Hosted by ERPS"
+      };
+
+    }
+
+
+    /*
+     * Future sources can be added here, for example:
+     *
+     * if (explicitSource === "eps") {
+     *   return {
+     *     key: "eps",
+     *     label: "Hosted by EPS"
+     *   };
+     * }
+     *
+     * if (explicitSource === "aiaa") {
+     *   return {
+     *     key: "aiaa",
+     *     label: "Hosted by AIAA"
+     *   };
+     * }
+     */
+
+
+    return {
+      key: explicitSource || "unknown",
+      label: ""
+    };
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * SEARCH HIGHLIGHTING
+   * ---------------------------------------------------------
+   */
+
+  function highlightMatch(text, query) {
+
+    if (!text) return "";
+
+    if (!query) {
+      return escapeHtml(text);
+    }
+
+    const safeText =
+      escapeHtml(text);
+
+    const safeQuery =
+      escapeRegExp(query);
+
+    const re =
+      new RegExp(safeQuery, "gi");
+
+    return safeText.replace(
+      re,
+      (m) => `<mark>${m}</mark>`
+    );
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * IEEE REFERENCE FORMAT
+   * ---------------------------------------------------------
+   */
+
+  function formatIEEE(p, query) {
+
+    let ref = "";
+
+
+    if (p.authorList.length) {
+
+      ref +=
+        `${highlightMatch(
+          p.authorList.join(", "),
+          query
+        )}, `;
+
+    }
+
+
+    if (p.title) {
+
+      ref +=
+        `"${highlightMatch(
+          p.title,
+          query
+        )}," `;
+
+    }
+
+
+    if (p.journal) {
+
+      ref +=
+        `<em>${highlightMatch(
+          p.journal,
+          query
+        )}</em>`;
+
+    }
+
+
+    if (p.volume) {
+
+      ref +=
+        `, vol. ${escapeHtml(p.volume)}`;
+
+    }
+
+
+    if (p.issue) {
+
+      ref +=
+        `, no. ${escapeHtml(p.issue)}`;
+
+    }
+
+
+    if (p.pages) {
+
+      ref +=
+        `, pp. ${escapeHtml(p.pages)}`;
+
+    }
+
+
+    if (p.year) {
+
+      ref +=
+        `, ${highlightMatch(
+          String(p.year),
+          query
+        )}`;
+
+    }
+
+
+    ref += ".";
+
+    return ref;
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * GET FILTER STATE
+   * ---------------------------------------------------------
+   */
+
+  function getFilterState() {
+
+    const search =
+      document
+        .getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const yearFromRaw =
+      document
+        .getElementById("yearFrom")
+        .value;
+
+    const yearToRaw =
+      document
+        .getElementById("yearTo")
+        .value;
+
+
+    /*
+     * Empty is different from 0.
+     *
+     * This is important because year 0 should remain valid.
+     */
+
+    const yearFrom =
+      yearFromRaw === ""
+        ? null
+        : parseInt(yearFromRaw, 10);
+
+
+    const yearTo =
+      yearToRaw === ""
+        ? null
+        : parseInt(yearToRaw, 10);
+
+
+    return {
+
+      search,
+
+      yearFrom,
+
+      yearTo,
+
+      authors:
+        [...selectedAuthors].sort(),
+
+      institutions:
+        [...selectedInstitutions].sort()
+
+    };
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * CHECK WHETHER FILTER STATE CHANGED
+   * ---------------------------------------------------------
+   */
+
+  function filterStateEqual(a, b) {
+
+    if (!a || !b) {
+      return false;
+    }
+
+
+    if (a.search !== b.search) {
+      return false;
+    }
+
+
+    if (a.yearFrom !== b.yearFrom) {
+      return false;
+    }
+
+
+    if (a.yearTo !== b.yearTo) {
+      return false;
+    }
+
+
+    if (
+      a.authors.length !==
+      b.authors.length
+    ) {
+      return false;
+    }
+
+
+    if (
+      a.institutions.length !==
+      b.institutions.length
+    ) {
+      return false;
+    }
+
+
+    for (
+      let i = 0;
+      i < a.authors.length;
+      i++
+    ) {
+
+      if (
+        a.authors[i] !==
+        b.authors[i]
+      ) {
+        return false;
+      }
+
+    }
+
+
+    for (
+      let i = 0;
+      i < a.institutions.length;
+      i++
+    ) {
+
+      if (
+        a.institutions[i] !==
+        b.institutions[i]
+      ) {
+        return false;
+      }
+
+    }
+
+
+    return true;
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * NAVIGATION HISTORY
+   * ---------------------------------------------------------
+   */
+
+  function cloneFilterState(state) {
+
+    if (!state) {
+      return null;
+    }
+
+    return {
+      search: state.search,
+      yearFrom: state.yearFrom,
+      yearTo: state.yearTo,
+      authors: [...state.authors],
+      institutions: [...state.institutions]
+    };
+
+  }
+
+
+  function getViewSnapshot() {
+
+    return {
+      filterState:
+        cloneFilterState(
+          getFilterState()
+        ),
+
+      currentPage,
+
+      pageSize,
+
+      authorProfile: visibleAuthorProfile
+
+    };
+
+  }
+
+
+  function viewStateEqual(a, b) {
+
+    if (!a || !b) {
+      return false;
+    }
+
+    if (
+      a.currentPage !==
+      b.currentPage
+    ) {
+      return false;
+    }
+
+    if (
+      a.pageSize !==
+      b.pageSize
+    ) {
+      return false;
+    }
+
+    return filterStateEqual(
+      a.filterState,
+      b.filterState
+    );
+
+  }
+
+
+  function pushCurrentViewToHistory() {
+
+    const currentView =
+      getViewSnapshot();
+
+    if (
+      !lastViewSnapshot ||
+      viewStateEqual(
+        lastViewSnapshot,
+        currentView
+      )
+    ) {
+      return;
+    }
+
+    navigationHistory.push({
+      filterState:
+        cloneFilterState(
+          lastViewSnapshot.filterState
+        ),
+
+      currentPage:
+        lastViewSnapshot.currentPage,
+
+      pageSize:
+        lastViewSnapshot.pageSize
+
+    });
+
+    /*
+     * Keep the history bounded so repeated searches cannot
+     * grow the page indefinitely.
+     */
+    if (
+      navigationHistory.length > 50
+    ) {
+      navigationHistory.shift();
+    }
+
+    updateNavigationButtons();
+
+  }
+
+
+  function renderHistoryChips(
+    elementId,
+    values
+  ) {
+
+    const element =
+      document.getElementById(
+        elementId
+      );
+
+    element.innerHTML =
+      values
+        .map(value => `
+          <span class="chip">
+            ${escapeHtml(value)}
+            <button
+              type="button"
+              data-value="${escapeHtml(value)}"
+              aria-label="Remove ${escapeHtml(value)}"
+            >
+              &times;
+            </button>
+          </span>
+        `)
+        .join("");
+
+  }
+
+
+  function restoreViewSnapshot(snapshot) {
+
+    selectedAuthors.clear();
+
+    snapshot
+      .filterState
+      .authors
+      .forEach(author =>
+        selectedAuthors.add(author)
+      );
+
+
+    selectedInstitutions.clear();
+
+    snapshot
+      .filterState
+      .institutions
+      .forEach(institution =>
+        selectedInstitutions.add(institution)
+      );
+
+
+    document.getElementById("search").value =
+      snapshot.filterState.search;
+
+
+    document.getElementById("authorSearch").value =
+      "";
+
+    document.getElementById("institutionSearch").value =
+      "";
+
+
+    document.getElementById("yearFrom").value =
+      snapshot.filterState.yearFrom === null
+        ? ""
+        : snapshot.filterState.yearFrom;
+
+
+    document.getElementById("yearTo").value =
+      snapshot.filterState.yearTo === null
+        ? ""
+        : snapshot.filterState.yearTo;
+
+
+    renderHistoryChips(
+      "authorChips",
+      snapshot.filterState.authors
+    );
+
+    renderHistoryChips(
+      "institutionChips",
+      snapshot.filterState.institutions
+    );
+
+
+    pageSize =
+      snapshot.pageSize;
+
+    document.getElementById("pageSize").value =
+      String(pageSize);
+
+
+    currentPage =
+      snapshot.currentPage;
+
+
+    lastFilterState = null;
+
+    if (snapshot.authorProfile) {
+      showAuthorProfile(snapshot.authorProfile);
+    } else {
+      hideAuthorProfile();
+    }
+
+    render();
+
+  }
+
+
+  function updateNavigationButtons() {
+
+    const backButton =
+      document.getElementById(
+        "backButton"
+      );
+
+    if (!backButton) {
+      return;
+    }
+
+    backButton.disabled =
+      navigationHistory.length === 0;
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * FILTER PAPERS
+   * ---------------------------------------------------------
+   *
+   * This is now separate from rendering.
+   *
+   * It only runs when the actual filter state changes.
+   */
+
+  function filterPapers() {
+
+    const state =
+      getFilterState();
+
+
+    if (
+      filterStateEqual(
+        state,
+        lastFilterState
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    lastFilterState = state;
+
+
+    const {
+      search,
+      yearFrom,
+      yearTo,
+      authors,
+      institutions
+    } = state;
+
+
+    const authorSet =
+      new Set(authors);
+
+    const institutionSet =
+      new Set(institutions);
+
+
+    filteredPapers =
+      papers.filter(p => {
+
+
+        /*
+         * Search
+         */
+
+        if (
+          search &&
+          !p.searchText.includes(search)
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Year
+         */
+
+        if (
+          yearFrom !== null &&
+          p.yearNumber < yearFrom
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          yearTo !== null &&
+          p.yearNumber > yearTo
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Author
+         */
+
+        if (
+          authorSet.size > 0 &&
+          !p.authorList.some(
+            author =>
+              authorSet.has(author)
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        /*
+         * Institution
+         */
+
+        if (
+          institutionSet.size > 0 &&
+          !p.institutionList.some(
+            institution =>
+              institutionSet.has(institution)
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        return true;
+
+      });
+
+
+    /*
+     * Sort ONLY when the filtered list changes.
+     *
+     * Pagination does not cause this sort to run again.
+     */
+
+    filteredPapers.sort(
+      (a, b) => {
+
+        let va;
+        let vb;
+
+
+        if (sortKey === "year") {
+
+          va = a.yearNumber;
+          vb = b.yearNumber;
+
+        } else {
+
+          va =
+            String(
+              a[sortKey] || ""
+            ).toLowerCase();
+
+          vb =
+            String(
+              b[sortKey] || ""
+            ).toLowerCase();
+
+        }
+
+
+        if (va < vb) {
+
+          return sortDir === "asc"
+            ? -1
+            : 1;
+
+        }
+
+
+        if (va > vb) {
+
+          return sortDir === "asc"
+            ? 1
+            : -1;
+
+        }
+
+
+        return 0;
+
+      }
+    );
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * MAIN RENDER
+   * ---------------------------------------------------------
+   */
+
+  function render() {
+
+    /*
+     * Only run the expensive filtering/sorting stage
+     * when the filters have actually changed.
+     */
+
+    filterPapers();
+
+    renderResults();
+
+    /*
+     * The view is now fully rendered, so it becomes the
+     * reference point for the next Back action.
+     */
+    lastViewSnapshot =
+      getViewSnapshot();
+
+    updateNavigationButtons();
+
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * RENDER RESULTS
+   * ---------------------------------------------------------
+   *
+   * Only the current page is converted into HTML.
+   */
+
+  function renderResults() {
+
+    const rawQuery =
+      document
+        .getElementById("search")
+        .value
+        .trim();
+
+
+    const countEl =
+      document.getElementById("count");
+
+
+    countEl.textContent =
+      `${filteredPapers.length} paper${
+        filteredPapers.length === 1
+          ? ""
+          : "s"
+      }`;
+
+
+    const totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          filteredPapers.length /
+          pageSize
+        )
+      );
+
+
+    if (
+      currentPage >
+      totalPages
+    ) {
+
+      currentPage =
+        totalPages;
+
+    }
+
+
+    const startIdx =
+      (currentPage - 1) *
+      pageSize;
+
+
+    const pageItems =
+      filteredPapers.slice(
+        startIdx,
+        startIdx + pageSize
+      );
+
+
+    const resultsEl =
+      document.getElementById("results");
+
+
+    if (!pageItems.length) {
+
+      resultsEl.innerHTML =
+        '<div class="empty">No papers match your search.</div>';
+
+      renderPagination(
+        totalPages
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Build only the visible page.
+     */
+
+    resultsEl.innerHTML =
+      pageItems
+        .map(p => {
+
+
+
+          const tagsHtml =
+            p.tags.length
+
+              ? `
+                <div class="paper-tags">
+                  ${p.tags
+                    .map(
+                      t =>
+                        `<span>${highlightMatch(t, rawQuery)}</span>`
+                    )
+                    .join("")}
+                </div>
+              `
+
+              : "<span></span>";
+
+
+          return `
+
+            <div class="paper">
+
+              <p class="paper-ref">
+                ${formatIEEE(
+                  p,
+                  rawQuery
+                )}
+              </p>
+
+              ${
+                p.institutionList.length
+                  ? `<p class="paper-institution">${highlightMatch(p.institutionList.join(", "), rawQuery)}</p>`
+                  : ""
+              }
+              
+
+              ${
+                p.pdf_url
+                  ? (() => {
+
+                      const source =
+                        getPaperSource(p);
+
+                      return `
+                        <div class="paper-access-row">
+
+                          ${
+                            source.label
+                              ? `
+                                <span class="paper-source">
+                                  ${escapeHtml(source.label)}
+                                </span>
+                              `
+                              : "<span></span>"
+                          }
+
+                          <a
+                            class="paper-access-btn"
+                            href="${escapeHtml(p.pdf_url)}"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            Access Paper
+                          </a>
+
+                        </div>
+                      `;
+
+                    })()
+                  : ""
+              }
+
+
+              <div class="paper-footer">
+
+                ${tagsHtml}
+
+
+                <div class="paper-author-links">
+
+                  ${
+                    p.authorList.length
+                      ? p.authorList
+                          .map(author => `
+                            <a
+                              href="#"
+                              class="paper-author"
+                              data-author="${escapeHtml(author)}"
+                              title="Show all papers by ${escapeHtml(author)}"
+                            >
+                              ${escapeHtml(author)}
+                            </a>
+                          `)
+                          .join("")
+                      : ""
+                  }
+
+                  ${
+                    p.doi
+                      ? `
+                        <a
+                          class="paper-doi"
+                          href="https://doi.org/${encodeURIComponent(
+                            p.doi
+                          )}"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          https://doi.org/${escapeHtml(p.doi)}
+                        </a>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+              </div>
+
+
+            </div>
+
+          `;
+
+        })
+        .join("");
+
+
+    resultsEl
+      .querySelectorAll(".paper-author")
+      .forEach(link => {
+
+        link.addEventListener("click", (event) => {
+
+          event.preventDefault();
+
+          const author =
+            link.dataset.author || "";
+
+          if (author) {
+            showPapersByAuthor(author);
+          }
+
+        });
+
+      });
+
+
+    renderPagination(
+      totalPages
+    );
+
+  }
+
+function computeAuthorStats(author) {
+  const papersByAuthor = papers.filter(p => p.authorList.includes(author));
+  return { count: papersByAuthor.length };
+}
+
+function showAuthorProfile(author) {
+  const stats = computeAuthorStats(author);
+
+  document.getElementById("authorProfileName").textContent = author;
+  document.getElementById("authorProfileCount").textContent =
+    `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
+
+  document.getElementById("authorProfile").classList.add("visible");
+  visibleAuthorProfile = author;
+
+  positionMarginBoxes();
+}
+
+
+  function hideAuthorProfile() {
+
+    document.getElementById("authorProfile").classList.remove("visible");
+
+    visibleAuthorProfile = null;
+
+  }
+
+
+
+    
+  /*
+   * ---------------------------------------------------------
+   * AUTHOR FILTER
+   * ---------------------------------------------------------
+   *
+   * Clicking an author name clears the other filters and
+   * shows every paper in this database by that author.
+   */
+
+  function showPapersByAuthor(author) {
+
+    selectedAuthors.clear();
+    selectedAuthors.add(author);
+
+    selectedInstitutions.clear();
+
+    document.getElementById("search").value = "";
+    document.getElementById("authorSearch").value = "";
+    document.getElementById("institutionSearch").value = "";
+
+    document.getElementById("yearFrom").value = "";
+    document.getElementById("yearTo").value = "";
+
+    document.getElementById("authorChips").innerHTML = `
+      <span class="chip">
+        ${escapeHtml(author)}
+        <button
+          type="button"
+          data-value="${escapeHtml(author)}"
+          aria-label="Remove ${escapeHtml(author)}"
+        >
+          &times;
+        </button>
+      </span>
+    `;
+
+    document.getElementById("institutionChips").innerHTML = "";
+
+    pushCurrentViewToHistory();
+
+    currentPage = 1;
+    lastFilterState = null;
+
+    showAuthorProfile(author);
+
+    render();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
+
+
+  /*
+   * ---------------------------------------------------------
+   * PAGINATION
+   * ---------------------------------------------------------
+   */
+
+  function renderPagination(
+    totalPages
+  ) {
+
+    const el =
+      document.getElementById(
+        "pagination"
+      );
+
+
+    if (totalPages <= 1) {
+
+      el.innerHTML = "";
+
+      return;
+
+    }
+
+
+    el.innerHTML = `
+
+      <button
+        class="page-btn"
+        id="prevPage"
+        ${
+          currentPage === 1
+            ? "disabled"
+            : ""
+        }
+      >
+        &larr; Prev
+      </button>
+
+
+      <span class="page-info">
+        Page ${currentPage} of ${totalPages}
+      </span>
+
+
+      <button
+        class="page-btn"
+        id="nextPage"
+        ${
+          currentPage === totalPages
+            ? "disabled"
+            : ""
+        }
+      >
+        Next &rarr;
+      </button>
+
+    `;
+
+
+    document
+      .getElementById("prevPage")
+      .addEventListener(
+        "click",
+        () => {
+
+          if (
+            currentPage > 1
+          ) {
+
+            currentPage--;
+
+            pushCurrentViewToHistory();
+
+            /*
+             * IMPORTANT:
+             *
+             * render() is still safe here because
+             * filterPapers() sees that the filter state
+             * hasn't changed and immediately returns.
+             */
+
+            render();
+
+            document
+              .querySelector(".wrap")
+              .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById("nextPage")
+      .addEventListener(
+        "click",
+        () => {
+
+          if (
+            currentPage <
+            totalPages
+          ) {
+
+            currentPage++;
+
+            pushCurrentViewToHistory();
+
+            render();
+
+            document
+              .querySelector(".wrap")
+              .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+
+          }
+
+        }
+      );
+
+  }
+
+
+</script>
+
+<div class="upload-box" id="uploadBox">
+  <input type="file" id="uploadFileInput" accept="application/pdf" multiple>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16V4M12 4L7 9M12 4l5 5"></path>
+    <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+  </svg>
+  <div class="upload-box-text">Click or drag a paper here to submit</div>
+  <div class="upload-box-hint">Please format the title in IEEE reference style.<br>Submissions are reviewed before being added.</div>
+</div>
+  
+</body>
+</html>
