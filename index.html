@@ -934,34 +934,39 @@
 <script>
 
   function positionMarginBoxes() {
-  const wrapEl = document.querySelector(".wrap");
   const controlsEl = document.querySelector(".controls");
-  if (!wrapEl || !controlsEl) return;
+  if (!controlsEl) return;
 
-  const wrapRect = wrapEl.getBoundingClientRect();
-  const controlsRect = controlsEl.getBoundingClientRect();
+  const rect = controlsEl.getBoundingClientRect();
 
-  // 1. Author Profile: Position centered between left screen edge (0) and wrap's left edge
   const authorProfileEl = document.getElementById("authorProfile");
   if (authorProfileEl) {
     const w = authorProfileEl.offsetWidth || 200;
-    const centralLeftMargin = wrapRect.left; // Left edge of the central content wrapper
     
-    // Calculate mid-point between 0 and centralLeftMargin
-    const left = Math.max(12, (centralLeftMargin / 2) - (w / 2));
-    
+    // Calculate initial left & top positions relative to controls
+    let left = Math.max(12, rect.left / 2 - w / 2);
+    let top = rect.top;
+
+    // Shift down if it overlaps navigation action buttons
+    const navEl = document.querySelector(".navigation-actions");
+    if (navEl) {
+      const n = navEl.getBoundingClientRect();
+      if (left < n.right && left + w > n.left) {
+        top = Math.max(top, n.bottom + 12);
+      }
+    }
+
     authorProfileEl.style.left = `${left}px`;
-    authorProfileEl.style.top = `${controlsRect.top}px`;
+    authorProfileEl.style.top = `${top}px`;
   }
 
-  // 2. Upload Box: Position centered between wrap's right edge and right screen edge
   const uploadBoxEl = document.getElementById("uploadBox");
   if (uploadBoxEl) {
     const w = uploadBoxEl.offsetWidth || 220;
-    const gapStart = wrapRect.right;
+    const gapStart = rect.right;
     const gapWidth = window.innerWidth - gapStart;
     
-    uploadBoxEl.style.left = `${Math.max(12, gapStart + (gapWidth / 2) - (w / 2))}px`;
+    uploadBoxEl.style.left = `${Math.max(12, gapStart + gapWidth / 2 - w / 2)}px`;
     uploadBoxEl.style.top = "auto";
     uploadBoxEl.style.bottom = "24px";
     uploadBoxEl.style.visibility = "visible";
