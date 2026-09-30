@@ -398,6 +398,7 @@
 }
 
 .upload-box {
+  visibility: hidden;
 background: transparent !important;
   position: fixed;
   width: 220px;
@@ -971,6 +972,7 @@ background: transparent;
       uploadBoxEl.style.left = `${Math.max(12, gapStart + gapWidth / 2 - w / 2)}px`;
       uploadBoxEl.style.top = "auto";
       uploadBoxEl.style.bottom = "24px";
+      uploadBoxEl.style.visibility = "visible";
     }
 
     fitUploadBox();
