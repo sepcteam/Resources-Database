@@ -1142,12 +1142,80 @@ background: transparent;
       );
 
 
+      const institutionsByAuthor = new Map();
+      const authorsByInstitution = new Map();
+
+      papers.forEach(p => {
+
+        const a = p.authorList;
+        const ins = p.institutionList;
+        const n = Math.min(a.length, ins.length);
+
+        for (let i = 0; i < n; i++) {
+
+          const author = a[i];
+          const institution = ins[i];
+
+          if (!institutionsByAuthor.has(author)) {
+            institutionsByAuthor.set(author, new Set());
+          }
+          institutionsByAuthor.get(author).add(institution);
+
+          if (!authorsByInstitution.has(institution)) {
+            authorsByInstitution.set(institution, new Set());
+          }
+          authorsByInstitution.get(institution).add(author);
+
+        }
+
+      });
+
+      function getAllowedOptions(otherSelected, otherInputId, otherMap) {
+
+        const keys = [];
+
+        if (otherSelected.size > 0) {
+          keys.push(...otherSelected);
+        } else {
+          const text = document
+            .getElementById(otherInputId)
+            .value
+            .trim()
+            .toLowerCase();
+
+          if (!text) return null;
+
+          otherMap.forEach((_, key) => {
+            if (key.toLowerCase().includes(text)) {
+              keys.push(key);
+            }
+          });
+        }
+
+        const allowed = new Set();
+
+        keys.forEach(key => {
+          const linked = otherMap.get(key);
+          if (linked) {
+            linked.forEach(v => allowed.add(v));
+          }
+        });
+
+        return allowed;
+
+      }
+
       buildMultiselect(
         "authorSearch",
         "authorDropdown",
         "authorChips",
         authors,
-        selectedAuthors
+        selectedAuthors,
+        () => getAllowedOptions(
+          selectedInstitutions,
+          "institutionSearch",
+          authorsByInstitution
+        )
       );
 
       buildMultiselect(
@@ -1155,7 +1223,12 @@ background: transparent;
         "institutionDropdown",
         "institutionChips",
         institutions,
-        selectedInstitutions
+        selectedInstitutions,
+        () => getAllowedOptions(
+          selectedAuthors,
+          "authorSearch",
+          institutionsByAuthor
+        )
       );
 
 
@@ -1492,7 +1565,8 @@ background: transparent;
     dropdownId,
     chipsId,
     optionsList,
-    selectedSet
+    selectedSet,
+    getAllowed
   ) {
 
     const input =
@@ -1550,9 +1624,12 @@ background: transparent;
 
       const q = query.toLowerCase();
 
+      const allowed = getAllowed ? getAllowed() : null;
+
       const matches = optionsList.filter(o =>
         !selectedSet.has(o) &&
-        o.toLowerCase().includes(q)
+        o.toLowerCase().includes(q) &&
+        (!allowed || allowed.has(o))
       );
 
 
