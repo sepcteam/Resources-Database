@@ -947,7 +947,9 @@
     
     // Calculate initial left & top positions relative to controls
     let left = Math.max(12, rect.left / 2 - w / 2);
-    let top = rect.top;
+    const resultsEl = document.getElementById("results");
+    const resultsTop = resultsEl ? resultsEl.getBoundingClientRect().top : rect.bottom;
+    let top = Math.max(12, resultsTop);
 
     // Shift down if it overlaps navigation action buttons
     const navEl = document.querySelector(".navigation-actions");
