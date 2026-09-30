@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  
   :root {
     --accent: #36b3ff;
     --accent-dark: #1a8fd6;
@@ -116,7 +115,6 @@
     max-width: 1420px;
     margin: 0 auto;
     padding: 40px 20px 80px;
-    transform: translateX(120px);
   }
 
   h1 {
@@ -230,7 +228,6 @@
   .filter-panel.open {
     display: flex;
   }
-
 
   .filter-group label {
     display: block;
@@ -371,106 +368,100 @@
   }
 
   .navigation-actions {
-  position: absolute;
-  right: 100%;          
-  top: 50%;
-  transform: translateY(-50%);   
-  margin-right: 12px;    
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
-  
-.author-profile {
-  display: none;
-  position: fixed;
-  width: 200px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px;
-  z-index: 15;
-}
 
-.author-profile.visible {
-  display: block;
-}
+  .author-profile {
+    display: none;
+    position: fixed;
+    width: 200px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    z-index: 15;
+  }
 
-.author-profile-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-}
+  .author-profile.visible {
+    display: block;
+  }
 
-.author-profile-count {
-  font-size: 0.78rem;
-  font-weight: 400;
-  color: var(--muted);
-  margin-top: 4px;
-}
-  
-.upload-box {
-  visibility: hidden;
-background: transparent !important;
-  position: fixed;
-  width: 220px;
-  min-height: 140px;
-  background: transparent !important;
-  border: 2px dashed #333;
-  border-radius: 10px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-  z-index: 15;
-  overflow: hidden;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
+  .author-profile-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+  }
 
-.upload-box.compact .upload-box-hint {
-  display: none;
-}
+  .author-profile-count {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 4px;
+  }
 
-.upload-box.tiny {
-  padding: 8px;
-}
+  .upload-box {
+    visibility: hidden;
+    position: fixed;
+    width: 220px;
+    min-height: 140px;
+    background: transparent !important;
+    border: 2px dashed #333;
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    z-index: 15;
+    overflow: hidden;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
 
-.upload-box.tiny svg {
-  display: none;
-}
+  .upload-box.compact .upload-box-hint {
+    display: none;
+  }
 
-.upload-box.dragover {
-  background: #eaf7ff;
-  border-color: var(--accent);
-}
+  .upload-box.tiny {
+    padding: 8px;
+  }
 
-.upload-box svg {
-  width: 32px;
-  height: 32px;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
+  .upload-box.tiny svg {
+    display: none;
+  }
 
-.upload-box-text {
-  font-size: 0.85rem;
-  font-weight: 500;
-}
+  .upload-box.dragover {
+    background: #eaf7ff;
+    border-color: var(--accent);
+  }
 
-.upload-box-hint {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 8px;
-  line-height: 1.4;
-}
+  .upload-box svg {
+    width: 32px;
+    height: 32px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
 
-.upload-box input[type="file"] {
-  display: none;
-}
+  .upload-box-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .upload-box-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .upload-box input[type="file"] {
+    display: none;
+  }
 
   .navigation-btn {
     padding: 8px 14px;
@@ -486,12 +477,9 @@ background: transparent !important;
   }
 
   .navigation-btn:hover:not(:disabled) {
-    
     border-color: var(--accent);
     color: var(--accent-dark);
   }
-
-  
 
   .navigation-btn:disabled {
     opacity: 0.4;
@@ -527,12 +515,10 @@ background: transparent !important;
   }
 
   .paper-access-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent-dark);
-  text-decoration: none;
-}
-
-
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
 
   .page-size-label {
     color: var(--muted);
@@ -602,7 +588,6 @@ background: transparent !important;
     color: var(--text);
   }
 
-  
   .paper-ref em {
     font-style: italic;
   }
@@ -616,11 +601,11 @@ background: transparent !important;
   }
 
   .paper-institution {
-  font-size: 0.82rem;
-  color: var(--muted);
-  margin: 0 0 10px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin: 0 0 10px;
   }
-  
+
   .paper-links a {
     color: var(--accent-dark);
     text-decoration: none;
@@ -707,17 +692,16 @@ background: transparent !important;
     padding: 40px 0;
     text-align: center;
   }
-  
+
   .filter-toggle-btn:active,
-.clear-filters-btn:active,
-.pagination .page-btn:active:not(:disabled),
-.navigation-btn:active:not(:disabled),
-.paper-access-btn:active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
-}
-  
+  .clear-filters-btn:active,
+  .pagination .page-btn:active:not(:disabled),
+  .navigation-btn:active:not(:disabled),
+  .paper-access-btn:active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
 
   @media (max-width: 960px) {
     .author-profile {
@@ -730,7 +714,7 @@ background: transparent !important;
     }
 
     .upload-box {
-background: transparent;
+      background: transparent;
       left: 12px !important;
       right: 12px;
       bottom: 20px !important;
@@ -738,7 +722,6 @@ background: transparent;
       min-height: 120px;
     }
   }
-
 </style>
 </head>
 
@@ -763,32 +746,30 @@ background: transparent;
     <main class="main-content">
       <div class="controls">
         <div class="navigation-actions">
-        <button
-          class="navigation-btn"
-          id="backButton"
-          type="button"
-          disabled
-        >
-          &larr; Back
-        </button>
+          <button
+            class="navigation-btn"
+            id="backButton"
+            type="button"
+            disabled
+          >
+            &larr; Back
+          </button>
 
-        <button
-          class="navigation-btn"
-          id="backToAll"
-          type="button"
-        >
-          Back to all papers
-        </button>
+          <button
+            class="navigation-btn"
+            id="backToAll"
+            type="button"
+          >
+            Back to all papers
+          </button>
         </div>
 
         <aside class="author-profile" id="authorProfile">
           <div class="author-profile-name" id="authorProfileName"></div>
           <div class="author-profile-count" id="authorProfileCount"></div>
-          
         </aside>
 
         <div class="search-wrap">
-
           <button
             class="search-icon-btn"
             id="searchIconBtn"
@@ -813,15 +794,12 @@ background: transparent;
             id="search"
             placeholder="Search title, author, keyword…"
           >
-
         </div>
 
         <button class="filter-toggle-btn" id="filterToggle">
           Filters
         </button>
       </div>
-
-      
 
       <div class="count-row">
         <div class="count" id="count"></div>
@@ -954,36 +932,19 @@ background: transparent;
 
 <script>
 
-    function positionMarginBoxes() {
+  function positionMarginBoxes() {
     const controlsEl = document.querySelector(".controls");
     if (!controlsEl) return;
-  
+
     const rect = controlsEl.getBoundingClientRect();
-     
-    // const authorProfileEl = document.getElementById("authorProfile");
-    // if (authorProfileEl) {
-    //   const w = authorProfileEl.offsetWidth || 200;
-    //   const left = Math.max(12, rect.left / 2 - w / 2);
-    //   let top = rect.top;
+
     const authorProfileEl = document.getElementById("authorProfile");
-      if (authorProfileEl) {
-        const w = authorProfileEl.offsetWidth || 200;
-        authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
-        authorProfileEl.style.top = `${rect.top}px`;
-      }
-
-      const navEl = document.querySelector(".navigation-actions");
-      if (navEl) {
-        const n = navEl.getBoundingClientRect();
-        if (left < n.right && left + w > n.left) {
-          top = Math.max(top, n.bottom + 12);
-        }
-      }
-
-      authorProfileEl.style.left = `${left}px`;
-      authorProfileEl.style.top = `${top}px`;
+    if (authorProfileEl) {
+      const w = authorProfileEl.offsetWidth || 200;
+      authorProfileEl.style.left = `${Math.max(12, rect.left / 2 - w / 2)}px`;
+      authorProfileEl.style.top = `${rect.top}px`;
     }
-  
+
     const uploadBoxEl = document.getElementById("uploadBox");
     if (uploadBoxEl) {
       const w = uploadBoxEl.offsetWidth || 220;
@@ -997,29 +958,6 @@ background: transparent;
 
     fitUploadBox();
   }
-
-  /*
-   * ---------------------------------------------------------
-   * UPLOAD BOX COLLISION HANDLING
-   * ---------------------------------------------------------
-   *
-   * Anything that can sit above the upload box is treated as
-   * an obstruction:
-   *
-   *   - the filter panel (when open)
-   *   - EVERY open multiselect dropdown
-   *
-   * Dropdowns are checked on their own, not just through the
-   * panel that contains them. If a dropdown is ever given
-   * position: absolute (so it can extend past the panel's
-   * bounds), the upload box still reacts to it.
-   *
-   * The upload box is anchored to the bottom of the viewport,
-   * so each obstruction limits how much vertical room is left.
-   * The tightest limit across all overlapping obstructions
-   * decides whether the box stays full size, goes compact,
-   * goes tiny, or is hidden.
-   */
 
   function getUploadObstructions() {
     const obstructions = [];
@@ -1040,9 +978,6 @@ background: transparent;
     const box = document.getElementById("uploadBox");
     if (!box) return;
 
-    /*
-     * Reset to the full-size state, then measure.
-     */
     box.style.display = "";
     box.style.height = "";
     box.style.minHeight = "";
@@ -1054,28 +989,15 @@ background: transparent;
     const gap = 6;
     const b = box.getBoundingClientRect();
 
-    /*
-     * Vertical room left below the lowest overlapping
-     * obstruction. Stays Infinity if nothing overlaps.
-     */
     let available = Infinity;
 
     obstructions.forEach(el => {
       const r = el.getBoundingClientRect();
 
-      // Not rendered (display: none, detached, etc.)
       if (r.width === 0 && r.height === 0) return;
-
-      // No horizontal overlap
       if (r.left >= b.right || r.right <= b.left) return;
-
-      // Entirely off-screen vertically
       if (r.bottom <= 0 || r.top >= window.innerHeight) return;
-
-      // Entirely below the upload box
       if (r.top >= b.bottom) return;
-
-      // Entirely above the upload box with clearance to spare
       if (r.bottom + gap <= b.top) return;
 
       available = Math.min(available, b.bottom - r.bottom - gap);
@@ -1083,25 +1005,15 @@ background: transparent;
 
     if (available === Infinity) return;
 
-    /*
-     * Step 1: drop the hint text.
-     */
     box.style.minHeight = "0";
     box.classList.add("compact");
 
     if (available >= box.offsetHeight) return;
 
-    /*
-     * Step 2: drop the icon and tighten the padding.
-     */
     box.classList.add("tiny");
 
     if (available >= box.offsetHeight) return;
 
-    /*
-     * Step 3: nothing fits, so hide the box rather than let
-     * it sit underneath the obstruction.
-     */
     box.style.display = "none";
   }
 
@@ -1119,16 +1031,6 @@ background: transparent;
   window.addEventListener("resize", positionMarginBoxes);
   window.addEventListener("scroll", scheduleFitUploadBox, { passive: true });
 
-  /*
-   * Re-fit whenever an obstruction changes size or visibility.
-   *
-   *  - ResizeObserver catches the panel and each dropdown
-   *    growing/shrinking (e.g. the option list being filtered).
-   *  - MutationObserver catches a dropdown's "open" class being
-   *    toggled, which a ResizeObserver alone would miss if the
-   *    dropdown is taken out of normal flow.
-   */
-
   const filterPanelEl = document.getElementById("filterPanel");
 
   const obstructionEls = [
@@ -1138,7 +1040,7 @@ background: transparent;
 
   if (window.ResizeObserver) {
     const resizeObserver = new ResizeObserver(scheduleFitUploadBox);
-    obstructionEls.forEach(el => resizeObserver.observe(el));
+    obstructionsEls = obstructionEls.forEach(el => resizeObserver.observe(el));
   }
 
   if (window.MutationObserver) {
@@ -1157,28 +1059,28 @@ background: transparent;
 
   const uploadBox = document.getElementById("uploadBox");
   const uploadFileInput = document.getElementById("uploadFileInput");
-  
+
   uploadBox.addEventListener("click", () => uploadFileInput.click());
-  
+
   uploadFileInput.addEventListener("change", () => {
     handleUploadedFiles(uploadFileInput.files);
   });
-  
+
   uploadBox.addEventListener("dragover", (e) => {
     e.preventDefault();
     uploadBox.classList.add("dragover");
   });
-  
+
   uploadBox.addEventListener("dragleave", () => {
     uploadBox.classList.remove("dragover");
   });
-  
+
   uploadBox.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadBox.classList.remove("dragover");
     handleUploadedFiles(e.dataTransfer.files);
   });
-  
+
   const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbzpDCD_Lxc-x3IkNDBtDwTv8erJeZDFbHNyyf-NujOPPW8eieAJXWV6Id5juSb8hif4VA/exec";
   const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 
@@ -1233,78 +1135,29 @@ background: transparent;
 
     setTimeout(() => { label.textContent = original; }, 5000);
   }
-  
+
   const CSV_URL = "Papers.csv";
 
   let papers = [];
-
   let sortKey = "year";
   let sortDir = "desc";
-
   let currentPage = 1;
   let pageSize = 50;
-
   let visibleAuthorProfile = null;
-  
+
   const selectedAuthors = new Set();
   const selectedInstitutions = new Set();
-
-  /*
-   * Cache the currently filtered/sorted list.
-   *
-   * This is one of the important performance changes.
-   *
-   * Previously, clicking Prev/Next caused the entire filtering
-   * and sorting process to happen again.
-   *
-   * Now filtering only happens when a filter actually changes.
-   */
   let filteredPapers = [];
-
-  /*
-   * Cache the current filter state.
-   *
-   * If render() is called simply because the page changed,
-   * we don't need to run the filters again.
-   */
   let lastFilterState = null;
-
-  /*
-   * Navigation history.
-   *
-   * Each entry stores the complete database view immediately
-   * before the latest user action.
-   */
   const navigationHistory = [];
-
   let lastViewSnapshot = null;
 
-
-  /*
-   * ---------------------------------------------------------
-   * LOAD CSV
-   * ---------------------------------------------------------
-   */
-
   Papa.parse(CSV_URL, {
-
     download: true,
-
     header: true,
-
     skipEmptyLines: true,
-
     complete: (r) => {
-
       papers = r.data.map(p => {
-
-        /*
-         * Convert everything we need once during loading.
-         *
-         * This avoids repeatedly converting strings/numbers
-         * every time the user searches.
-         */
-
         const authorList = String(p.authors || "")
           .split(";")
           .map(s => s.trim())
@@ -1321,17 +1174,6 @@ background: transparent;
           .filter(Boolean);
 
         const yearNumber = parseInt(p.year, 10) || 0;
-
-        /*
-         * Build exactly the searchable text we need.
-         *
-         * This is much cheaper than:
-         *
-         * Object.values(withLists).join(...)
-         *
-         * because that also includes the derived arrays and
-         * other properties.
-         */
 
         const searchText = [
           p.title,
@@ -1358,48 +1200,29 @@ background: transparent;
           yearNumber,
           searchText
         };
-
       });
-
-
-      /*
-       * -------------------------------------------------------
-       * BUILD AUTHOR / INSTITUTION LISTS
-       * -------------------------------------------------------
-       *
-       * All options are still kept.
-       *
-       * There is deliberately NO .slice(0, 50) here.
-       */
 
       const authors = [
         ...new Set(
           papers.flatMap(p => p.authorList)
         )
-      ].sort((a, b) =>
-        a.localeCompare(b)
-      );
+      ].sort((a, b) => a.localeCompare(b));
 
       const institutions = [
         ...new Set(
           papers.flatMap(p => p.institutionList)
         )
-      ].sort((a, b) =>
-        a.localeCompare(b)
-      );
-
+      ].sort((a, b) => a.localeCompare(b));
 
       const institutionsByAuthor = new Map();
       const authorsByInstitution = new Map();
 
       papers.forEach(p => {
-
         const a = p.authorList;
         const ins = p.institutionList;
         const n = Math.min(a.length, ins.length);
 
         for (let i = 0; i < n; i++) {
-
           const author = a[i];
           const institution = ins[i];
 
@@ -1412,13 +1235,10 @@ background: transparent;
             authorsByInstitution.set(institution, new Set());
           }
           authorsByInstitution.get(institution).add(author);
-
         }
-
       });
 
       function getAllowedOptions(otherSelected, otherInputId, otherMap) {
-
         const keys = [];
 
         if (otherSelected.size > 0) {
@@ -1449,7 +1269,6 @@ background: transparent;
         });
 
         return allowed;
-
       }
 
       buildMultiselect(
@@ -1478,933 +1297,317 @@ background: transparent;
         )
       );
 
-
-      /*
-       * Initial render.
-       */
-
       applyFilterChange();
-
     },
 
     error: () => {
-
       document.getElementById("results").innerHTML =
-        '<div class="empty">Could not load papers.csv — check the file exists in the same folder with this exact name and case.</div>';
-
+        '<div class="empty">Could not load Papers.csv — check that the file exists in the same folder with this exact name and case.</div>';
     }
-
   });
 
-
-  /*
-   * ---------------------------------------------------------
-   * DEBOUNCE
-   * ---------------------------------------------------------
-   *
-   * Wait until the user pauses typing before filtering.
-   *
-   * 250 ms is enough to prevent a filter/render cycle from
-   * happening for every individual keystroke.
-   */
-
   function debounce(fn, delay) {
-
     let timer;
-
     return function (...args) {
-
       clearTimeout(timer);
-
       timer = setTimeout(() => {
-
         fn.apply(this, args);
-
       }, delay);
-
     };
-
   }
 
-
-  const debouncedFilterChange =
-    debounce(applyFilterChange, 250);
-
-
-  /*
-   * ---------------------------------------------------------
-   * FILTER CHANGE
-   * ---------------------------------------------------------
-   */
+  const debouncedFilterChange = debounce(applyFilterChange, 250);
 
   function applyFilterChange() {
-
-    /*
-     * Save the view that existed immediately before this
-     * filter/search action.
-     */
     pushCurrentViewToHistory();
-
     currentPage = 1;
-
-    /*
-     * Force the filtering stage to run.
-     */
-
     lastFilterState = null;
-
     hideAuthorProfile();
-
     render();
-
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * EVENT LISTENERS
-   * ---------------------------------------------------------
-   */
 
   document
     .getElementById("search")
-    .addEventListener(
-      "input",
-      debouncedFilterChange
-    );
-
-
-  /*
-   * Year inputs.
-   *
-   * Only allow digits.
-   * Prevent negative values.
-   */
+    .addEventListener("input", debouncedFilterChange);
 
   function sanitizeYearInput(input) {
-
     let value = input.value;
-
     value = value.replace(/[^\d]/g, "");
 
-    /*
-     * Remove leading zeroes while preserving a single zero.
-     */
-
     if (value.length > 1) {
-
       value = value.replace(/^0+/, "");
-
       if (value === "") {
         value = "0";
       }
-
     }
-
     input.value = value;
-
   }
-
 
   document
     .getElementById("yearFrom")
     .addEventListener("input", function () {
-
       sanitizeYearInput(this);
-
       debouncedFilterChange();
-
     });
-
 
   document
     .getElementById("yearTo")
     .addEventListener("input", function () {
-
       sanitizeYearInput(this);
-
       debouncedFilterChange();
-
     });
-
-
-  /*
-   * Page size.
-   */
 
   document
     .getElementById("pageSize")
     .addEventListener("change", (e) => {
-
-      pageSize =
-        parseInt(
-          e.target.value,
-          10
-        );
-
+      pageSize = parseInt(e.target.value, 10);
       currentPage = 1;
-
       pushCurrentViewToHistory();
-
-      /*
-       * No need to refilter.
-       *
-       * The underlying filtered list has not changed.
-       */
-
       renderResults();
-
-      lastViewSnapshot =
-        getViewSnapshot();
-
+      lastViewSnapshot = getViewSnapshot();
       updateNavigationButtons();
-
     });
-
-
-  /*
-   * Filter panel toggle.
-   */
 
   document
     .getElementById("filterToggle")
     .addEventListener("click", () => {
-
-      document
-        .getElementById("filterPanel")
-        .classList.toggle("open");
-
-      document
-        .getElementById("filterToggle")
-        .classList.toggle("active");
-
+      document.getElementById("filterPanel").classList.toggle("open");
+      document.getElementById("filterToggle").classList.toggle("active");
     });
-
-
-  /*
-   * Clear filters.
-   */
 
   document
     .getElementById("clearFilters")
     .addEventListener("click", () => {
-
       selectedAuthors.clear();
-
       selectedInstitutions.clear();
-
       document.getElementById("authorSearch").value = "";
       document.getElementById("institutionSearch").value = "";
-
       document.getElementById("authorChips").innerHTML = "";
       document.getElementById("institutionChips").innerHTML = "";
-
       document.getElementById("yearFrom").value = "";
       document.getElementById("yearTo").value = "";
-
       applyFilterChange();
-
     });
-
-
-  /*
-   * Search icon.
-   *
-   * Run immediately instead of waiting for debounce.
-   */
 
   document
     .getElementById("searchIconBtn")
     .addEventListener("click", () => {
-
       applyFilterChange();
-
     });
-
-
-  /*
-   * ---------------------------------------------------------
-   * NAVIGATION BUTTONS
-   * ---------------------------------------------------------
-   */
 
   document
     .getElementById("backButton")
     .addEventListener("click", () => {
-
-      if (
-        navigationHistory.length === 0
-      ) {
-        return;
-      }
-
-      const previousView =
-        navigationHistory.pop();
-
-      restoreViewSnapshot(
-        previousView
-      );
-
+      if (navigationHistory.length === 0) return;
+      const previousView = navigationHistory.pop();
+      restoreViewSnapshot(previousView);
       updateNavigationButtons();
-
     });
-
 
   document
     .getElementById("backToAll")
     .addEventListener("click", () => {
-
-      /*
-       * This is a deliberate jump rather than a history
-       * action, so it clears the Back history.
-       */
       navigationHistory.length = 0;
-
       hideAuthorProfile();
-      
       selectedAuthors.clear();
-
       selectedInstitutions.clear();
-
-      document.getElementById("search").value =
-        "";
-
-      document.getElementById("authorSearch").value =
-        "";
-
-      document.getElementById("institutionSearch").value =
-        "";
-
-      document.getElementById("authorChips").innerHTML =
-        "";
-
-      document.getElementById("institutionChips").innerHTML =
-        "";
-
-      document.getElementById("yearFrom").value =
-        "";
-
-      document.getElementById("yearTo").value =
-        "";
-
+      document.getElementById("search").value = "";
+      document.getElementById("authorSearch").value = "";
+      document.getElementById("institutionSearch").value = "";
+      document.getElementById("authorChips").innerHTML = "";
+      document.getElementById("institutionChips").innerHTML = "";
+      document.getElementById("yearFrom").value = "";
+      document.getElementById("yearTo").value = "";
       currentPage = 1;
-
       lastFilterState = null;
-
       render();
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-
-  /*
-   * ---------------------------------------------------------
-   * MULTISELECT
-   * ---------------------------------------------------------
-   */
-
-  function buildMultiselect(
-    inputId,
-    dropdownId,
-    chipsId,
-    optionsList,
-    selectedSet,
-    getAllowed
-  ) {
-
-    const input =
-      document.getElementById(inputId);
-
-    const dropdown =
-      document.getElementById(dropdownId);
-
-    const chipsEl =
-      document.getElementById(chipsId);
-
-
-    /*
-     * Render selected chips.
-     *
-     * Event delegation is used instead of adding an event
-     * listener to every chip button individually.
-     */
+  function buildMultiselect(inputId, dropdownId, chipsId, optionsList, selectedSet, getAllowed) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const chipsEl = document.getElementById(chipsId);
 
     function renderChips() {
-
-      chipsEl.innerHTML = [
-        ...selectedSet
-      ]
+      chipsEl.innerHTML = [...selectedSet]
         .map(v => `
           <span class="chip">
             ${escapeHtml(v)}
-            <button
-              type="button"
-              data-value="${escapeHtml(v)}"
-              aria-label="Remove ${escapeHtml(v)}"
-            >
-              &times;
-            </button>
+            <button type="button" data-value="${escapeHtml(v)}" aria-label="Remove ${escapeHtml(v)}">&times;</button>
           </span>
         `)
         .join("");
-
     }
 
-
-    /*
-     * Render dropdown.
-     *
-     * IMPORTANT:
-     *
-     * This still makes ALL matching options available.
-     *
-     * We are not limiting the list to 50.
-     *
-     * The dropdown remains scrollable exactly as requested.
-     */
-
     function renderDropdown(query) {
-
       const q = query.toLowerCase();
-
       const allowed = getAllowed ? getAllowed() : null;
-
       const matches = optionsList.filter(o =>
         !selectedSet.has(o) &&
         o.toLowerCase().includes(q) &&
         (!allowed || allowed.has(o))
       );
 
-
       dropdown.innerHTML = matches.length
-
-        ? matches
-            .map(o => `
-              <div
-                class="option"
-                data-value="${escapeHtml(o)}"
-              >
-                ${escapeHtml(o)}
-              </div>
-            `)
-            .join("")
-
+        ? matches.map(o => `
+            <div class="option" data-value="${escapeHtml(o)}">
+              ${escapeHtml(o)}
+            </div>
+          `).join("")
         : `<div class="no-results">No matches</div>`;
-
     }
 
-
-    /*
-     * One click listener for all chips.
-     */
-
     chipsEl.addEventListener("click", (e) => {
-
-      const btn =
-        e.target.closest("button[data-value]");
-
+      const btn = e.target.closest("button[data-value]");
       if (!btn) return;
-
-      selectedSet.delete(
-        btn.dataset.value
-      );
-
+      selectedSet.delete(btn.dataset.value);
       renderChips();
-
       applyFilterChange();
-
     });
-
-
-    /*
-     * One click listener for the entire dropdown.
-     *
-     * This is considerably cheaper than creating a new
-     * event listener for every option every time the list
-     * changes.
-     */
 
     dropdown.addEventListener("click", (e) => {
-
-      const option =
-        e.target.closest(".option");
-
+      const option = e.target.closest(".option");
       if (!option) return;
-
-      selectedSet.add(
-        option.dataset.value
-      );
-
+      selectedSet.add(option.dataset.value);
       input.value = "";
-
       dropdown.classList.remove("open");
-
       renderChips();
-
       applyFilterChange();
-
     });
-
 
     input.addEventListener("focus", () => {
-
       renderDropdown(input.value);
-
       dropdown.classList.add("open");
-
     });
-
 
     input.addEventListener("input", () => {
-
       renderDropdown(input.value);
-
       dropdown.classList.add("open");
-
     });
-
-
-    /*
-     * Click outside to close.
-     */
 
     document.addEventListener("click", (e) => {
-
-      if (
-        !e.target.closest(`#${inputId}`) &&
-        !e.target.closest(`#${dropdownId}`)
-      ) {
-
+      if (!e.target.closest(`#${inputId}`) && !e.target.closest(`#${dropdownId}`)) {
         dropdown.classList.remove("open");
-
       }
-
     });
 
-
     renderChips();
-
   }
 
-
-  /*
-   * ---------------------------------------------------------
-   * HTML ESCAPING
-   * ---------------------------------------------------------
-   *
-   * Keeps CSV values from being interpreted as HTML.
-   */
-
   function escapeHtml(value) {
-
     return String(value ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * REGEX ESCAPING
-   * ---------------------------------------------------------
-   */
 
   function escapeRegExp(str) {
-
-    return str.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
-
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * PAPER SOURCE / HOST
-   * ---------------------------------------------------------
-   *
-   * This is intentionally modular.
-   *
-   * Preferred method:
-   * add a "source" column to the CSV, for example:
-   *
-   *   source
-   *   IEPC
-   *   EPS
-   *   AIAA
-   *
-   * If source is blank, IEPC is detected automatically from
-   * the journal/title so the existing database continues to
-   * work without a CSV change.
-   */
 
   function getPaperSource(p) {
+    const explicitSource = String(p.source || p.Source || "").trim().toLowerCase();
 
-    const explicitSource =
-      String(
-        p.source ||
-        p.Source ||
-        ""
-      )
-      .trim()
-      .toLowerCase();
-
-
-    if (
-      explicitSource === "iepc" ||
-      explicitSource.includes(
-        "international electric propulsion conference"
-      )
-    ) {
-
-      return {
-        key: "iepc",
-        label: "Hosted by ERPS"
-      };
-
+    if (explicitSource === "iepc" || explicitSource.includes("international electric propulsion conference")) {
+      return { key: "iepc", label: "Hosted by ERPS" };
     }
 
+    const journal = String(p.journal || "").toLowerCase();
+    const title = String(p.title || "").toLowerCase();
 
-    const journal =
-      String(
-        p.journal || ""
-      )
-      .toLowerCase();
-
-
-    const title =
-      String(
-        p.title || ""
-      )
-      .toLowerCase();
-
-
-    if (
-      journal.includes("iepc") ||
-      journal.includes(
-        "international electric propulsion conference"
-      ) ||
-      title.includes("iepc")
-    ) {
-
-      return {
-        key: "iepc",
-        label: "Hosted by ERPS"
-      };
-
+    if (journal.includes("iepc") || journal.includes("international electric propulsion conference") || title.includes("iepc")) {
+      return { key: "iepc", label: "Hosted by ERPS" };
     }
 
-
-    /*
-     * Future sources can be added here, for example:
-     *
-     * if (explicitSource === "eps") {
-     *   return {
-     *     key: "eps",
-     *     label: "Hosted by EPS"
-     *   };
-     * }
-     *
-     * if (explicitSource === "aiaa") {
-     *   return {
-     *     key: "aiaa",
-     *     label: "Hosted by AIAA"
-     *   };
-     * }
-     */
-
-
-    return {
-      key: explicitSource || "unknown",
-      label: ""
-    };
-
+    return { key: explicitSource || "unknown", label: "" };
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * SEARCH HIGHLIGHTING
-   * ---------------------------------------------------------
-   */
 
   function highlightMatch(text, query) {
-
     if (!text) return "";
+    if (!query) return escapeHtml(text);
 
-    if (!query) {
-      return escapeHtml(text);
-    }
+    const safeText = escapeHtml(text);
+    const safeQuery = escapeRegExp(query);
+    const re = new RegExp(safeQuery, "gi");
 
-    const safeText =
-      escapeHtml(text);
-
-    const safeQuery =
-      escapeRegExp(query);
-
-    const re =
-      new RegExp(safeQuery, "gi");
-
-    return safeText.replace(
-      re,
-      (m) => `<mark>${m}</mark>`
-    );
-
+    return safeText.replace(re, (m) => `<mark>${m}</mark>`);
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * IEEE REFERENCE FORMAT
-   * ---------------------------------------------------------
-   */
 
   function formatIEEE(p, query) {
-
     let ref = "";
 
-
     if (p.authorList.length) {
-
-      ref +=
-        `${highlightMatch(
-          p.authorList.join(", "),
-          query
-        )}, `;
-
+      ref += `${highlightMatch(p.authorList.join(", "), query)}, `;
     }
-
 
     if (p.title) {
-
-      ref +=
-        `"${highlightMatch(
-          p.title,
-          query
-        )}," `;
-
+      ref += `"${highlightMatch(p.title, query)}," `;
     }
-
 
     if (p.journal) {
-
-      ref +=
-        `<em>${highlightMatch(
-          p.journal,
-          query
-        )}</em>`;
-
+      ref += `<em>${highlightMatch(p.journal, query)}</em>`;
     }
-
 
     if (p.volume) {
-
-      ref +=
-        `, vol. ${escapeHtml(p.volume)}`;
-
+      ref += `, vol. ${escapeHtml(p.volume)}`;
     }
-
 
     if (p.issue) {
-
-      ref +=
-        `, no. ${escapeHtml(p.issue)}`;
-
+      ref += `, no. ${escapeHtml(p.issue)}`;
     }
-
 
     if (p.pages) {
-
-      ref +=
-        `, pp. ${escapeHtml(p.pages)}`;
-
+      ref += `, pp. ${escapeHtml(p.pages)}`;
     }
-
 
     if (p.year) {
-
-      ref +=
-        `, ${highlightMatch(
-          String(p.year),
-          query
-        )}`;
-
+      ref += `, ${highlightMatch(String(p.year), query)}`;
     }
-
 
     ref += ".";
-
     return ref;
-
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * GET FILTER STATE
-   * ---------------------------------------------------------
-   */
 
   function getFilterState() {
+    const search = document.getElementById("search").value.trim().toLowerCase();
+    const yearFromRaw = document.getElementById("yearFrom").value;
+    const yearToRaw = document.getElementById("yearTo").value;
 
-    const search =
-      document
-        .getElementById("search")
-        .value
-        .trim()
-        .toLowerCase();
-
-
-    const yearFromRaw =
-      document
-        .getElementById("yearFrom")
-        .value;
-
-    const yearToRaw =
-      document
-        .getElementById("yearTo")
-        .value;
-
-
-    /*
-     * Empty is different from 0.
-     *
-     * This is important because year 0 should remain valid.
-     */
-
-    const yearFrom =
-      yearFromRaw === ""
-        ? null
-        : parseInt(yearFromRaw, 10);
-
-
-    const yearTo =
-      yearToRaw === ""
-        ? null
-        : parseInt(yearToRaw, 10);
-
+    const yearFrom = yearFromRaw === "" ? null : parseInt(yearFromRaw, 10);
+    const yearTo = yearToRaw === "" ? null : parseInt(yearToRaw, 10);
 
     return {
-
       search,
-
       yearFrom,
-
       yearTo,
-
-      authors:
-        [...selectedAuthors].sort(),
-
-      institutions:
-        [...selectedInstitutions].sort()
-
+      authors: [...selectedAuthors].sort(),
+      institutions: [...selectedInstitutions].sort()
     };
-
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * CHECK WHETHER FILTER STATE CHANGED
-   * ---------------------------------------------------------
-   */
 
   function filterStateEqual(a, b) {
+    if (!a || !b) return false;
+    if (a.search !== b.search) return false;
+    if (a.yearFrom !== b.yearFrom) return false;
+    if (a.yearTo !== b.yearTo) return false;
+    if (a.authors.length !== b.authors.length) return false;
+    if (a.institutions.length !== b.institutions.length) return false;
 
-    if (!a || !b) {
-      return false;
+    for (let i = 0; i < a.authors.length; i++) {
+      if (a.authors[i] !== b.authors[i]) return false;
     }
-
-
-    if (a.search !== b.search) {
-      return false;
+    for (let i = 0; i < a.institutions.length; i++) {
+      if (a.institutions[i] !== b.institutions[i]) return false;
     }
-
-
-    if (a.yearFrom !== b.yearFrom) {
-      return false;
-    }
-
-
-    if (a.yearTo !== b.yearTo) {
-      return false;
-    }
-
-
-    if (
-      a.authors.length !==
-      b.authors.length
-    ) {
-      return false;
-    }
-
-
-    if (
-      a.institutions.length !==
-      b.institutions.length
-    ) {
-      return false;
-    }
-
-
-    for (
-      let i = 0;
-      i < a.authors.length;
-      i++
-    ) {
-
-      if (
-        a.authors[i] !==
-        b.authors[i]
-      ) {
-        return false;
-      }
-
-    }
-
-
-    for (
-      let i = 0;
-      i < a.institutions.length;
-      i++
-    ) {
-
-      if (
-        a.institutions[i] !==
-        b.institutions[i]
-      ) {
-        return false;
-      }
-
-    }
-
 
     return true;
-
   }
 
-
-  /*
-   * ---------------------------------------------------------
-   * NAVIGATION HISTORY
-   * ---------------------------------------------------------
-   */
-
   function cloneFilterState(state) {
-
-    if (!state) {
-      return null;
-    }
-
+    if (!state) return null;
     return {
       search: state.search,
       yearFrom: state.yearFrom,
@@ -2412,196 +1615,73 @@ background: transparent;
       authors: [...state.authors],
       institutions: [...state.institutions]
     };
-
   }
-
 
   function getViewSnapshot() {
-
     return {
-      filterState:
-        cloneFilterState(
-          getFilterState()
-        ),
-
+      filterState: cloneFilterState(getFilterState()),
       currentPage,
-
       pageSize,
-
       authorProfile: visibleAuthorProfile
-
     };
-
   }
-
 
   function viewStateEqual(a, b) {
-
-    if (!a || !b) {
-      return false;
-    }
-
-    if (
-      a.currentPage !==
-      b.currentPage
-    ) {
-      return false;
-    }
-
-    if (
-      a.pageSize !==
-      b.pageSize
-    ) {
-      return false;
-    }
-
-    return filterStateEqual(
-      a.filterState,
-      b.filterState
-    );
-
+    if (!a || !b) return false;
+    if (a.currentPage !== b.currentPage) return false;
+    if (a.pageSize !== b.pageSize) return false;
+    return filterStateEqual(a.filterState, b.filterState);
   }
 
-
   function pushCurrentViewToHistory() {
-
-    const currentView =
-      getViewSnapshot();
-
-    if (
-      !lastViewSnapshot ||
-      viewStateEqual(
-        lastViewSnapshot,
-        currentView
-      )
-    ) {
+    const currentView = getViewSnapshot();
+    if (!lastViewSnapshot || viewStateEqual(lastViewSnapshot, currentView)) {
       return;
     }
 
     navigationHistory.push({
-      filterState:
-        cloneFilterState(
-          lastViewSnapshot.filterState
-        ),
-
-      currentPage:
-        lastViewSnapshot.currentPage,
-
-      pageSize:
-        lastViewSnapshot.pageSize
-
+      filterState: cloneFilterState(lastViewSnapshot.filterState),
+      currentPage: lastViewSnapshot.currentPage,
+      pageSize: lastViewSnapshot.pageSize
     });
 
-    /*
-     * Keep the history bounded so repeated searches cannot
-     * grow the page indefinitely.
-     */
-    if (
-      navigationHistory.length > 50
-    ) {
+    if (navigationHistory.length > 50) {
       navigationHistory.shift();
     }
 
     updateNavigationButtons();
-
   }
 
-
-  function renderHistoryChips(
-    elementId,
-    values
-  ) {
-
-    const element =
-      document.getElementById(
-        elementId
-      );
-
-    element.innerHTML =
-      values
-        .map(value => `
-          <span class="chip">
-            ${escapeHtml(value)}
-            <button
-              type="button"
-              data-value="${escapeHtml(value)}"
-              aria-label="Remove ${escapeHtml(value)}"
-            >
-              &times;
-            </button>
-          </span>
-        `)
-        .join("");
-
+  function renderHistoryChips(elementId, values) {
+    const element = document.getElementById(elementId);
+    element.innerHTML = values.map(value => `
+      <span class="chip">
+        ${escapeHtml(value)}
+        <button type="button" data-value="${escapeHtml(value)}" aria-label="Remove ${escapeHtml(value)}">&times;</button>
+      </span>
+    `).join("");
   }
-
 
   function restoreViewSnapshot(snapshot) {
-
     selectedAuthors.clear();
-
-    snapshot
-      .filterState
-      .authors
-      .forEach(author =>
-        selectedAuthors.add(author)
-      );
-
+    snapshot.filterState.authors.forEach(author => selectedAuthors.add(author));
 
     selectedInstitutions.clear();
+    snapshot.filterState.institutions.forEach(institution => selectedInstitutions.add(institution));
 
-    snapshot
-      .filterState
-      .institutions
-      .forEach(institution =>
-        selectedInstitutions.add(institution)
-      );
+    document.getElementById("search").value = snapshot.filterState.search;
+    document.getElementById("authorSearch").value = "";
+    document.getElementById("institutionSearch").value = "";
 
+    document.getElementById("yearFrom").value = snapshot.filterState.yearFrom === null ? "" : snapshot.filterState.yearFrom;
+    document.getElementById("yearTo").value = snapshot.filterState.yearTo === null ? "" : snapshot.filterState.yearTo;
 
-    document.getElementById("search").value =
-      snapshot.filterState.search;
+    renderHistoryChips("authorChips", snapshot.filterState.authors);
+    renderHistoryChips("institutionChips", snapshot.filterState.institutions);
 
-
-    document.getElementById("authorSearch").value =
-      "";
-
-    document.getElementById("institutionSearch").value =
-      "";
-
-
-    document.getElementById("yearFrom").value =
-      snapshot.filterState.yearFrom === null
-        ? ""
-        : snapshot.filterState.yearFrom;
-
-
-    document.getElementById("yearTo").value =
-      snapshot.filterState.yearTo === null
-        ? ""
-        : snapshot.filterState.yearTo;
-
-
-    renderHistoryChips(
-      "authorChips",
-      snapshot.filterState.authors
-    );
-
-    renderHistoryChips(
-      "institutionChips",
-      snapshot.filterState.institutions
-    );
-
-
-    pageSize =
-      snapshot.pageSize;
-
-    document.getElementById("pageSize").value =
-      String(pageSize);
-
-
-    currentPage =
-      snapshot.currentPage;
-
+    pageSize = snapshot.pageSize;
+    document.getElementById("pageSize").value = String(pageSize);
+    currentPage = snapshot.currentPage;
 
     lastFilterState = null;
 
@@ -2612,697 +1692,206 @@ background: transparent;
     }
 
     render();
-
   }
-
 
   function updateNavigationButtons() {
-
-    const backButton =
-      document.getElementById(
-        "backButton"
-      );
-
-    if (!backButton) {
-      return;
-    }
-
-    backButton.disabled =
-      navigationHistory.length === 0;
-
+    const backButton = document.getElementById("backButton");
+    if (!backButton) return;
+    backButton.disabled = navigationHistory.length === 0;
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * FILTER PAPERS
-   * ---------------------------------------------------------
-   *
-   * This is now separate from rendering.
-   *
-   * It only runs when the actual filter state changes.
-   */
 
   function filterPapers() {
-
-    const state =
-      getFilterState();
-
-
-    if (
-      filterStateEqual(
-        state,
-        lastFilterState
-      )
-    ) {
-
-      return;
-
-    }
-
+    const state = getFilterState();
+    if (filterStateEqual(state, lastFilterState)) return;
 
     lastFilterState = state;
+    const { search, yearFrom, yearTo, authors, institutions } = state;
 
+    const authorSet = new Set(authors);
+    const institutionSet = new Set(institutions);
 
-    const {
-      search,
-      yearFrom,
-      yearTo,
-      authors,
-      institutions
-    } = state;
+    filteredPapers = papers.filter(p => {
+      if (search && !p.searchText.includes(search)) return false;
+      if (yearFrom !== null && p.yearNumber < yearFrom) return false;
+      if (yearTo !== null && p.yearNumber > yearTo) return false;
+      if (authorSet.size > 0 && !p.authorList.some(author => authorSet.has(author))) return false;
+      if (institutionSet.size > 0 && !p.institutionList.some(institution => institutionSet.has(institution))) return false;
+      return true;
+    });
 
-
-    const authorSet =
-      new Set(authors);
-
-    const institutionSet =
-      new Set(institutions);
-
-
-    filteredPapers =
-      papers.filter(p => {
-
-
-        /*
-         * Search
-         */
-
-        if (
-          search &&
-          !p.searchText.includes(search)
-        ) {
-
-          return false;
-
-        }
-
-
-        /*
-         * Year
-         */
-
-        if (
-          yearFrom !== null &&
-          p.yearNumber < yearFrom
-        ) {
-
-          return false;
-
-        }
-
-
-        if (
-          yearTo !== null &&
-          p.yearNumber > yearTo
-        ) {
-
-          return false;
-
-        }
-
-
-        /*
-         * Author
-         */
-
-        if (
-          authorSet.size > 0 &&
-          !p.authorList.some(
-            author =>
-              authorSet.has(author)
-          )
-        ) {
-
-          return false;
-
-        }
-
-
-        /*
-         * Institution
-         */
-
-        if (
-          institutionSet.size > 0 &&
-          !p.institutionList.some(
-            institution =>
-              institutionSet.has(institution)
-          )
-        ) {
-
-          return false;
-
-        }
-
-
-        return true;
-
-      });
-
-
-    /*
-     * Sort ONLY when the filtered list changes.
-     *
-     * Pagination does not cause this sort to run again.
-     */
-
-    filteredPapers.sort(
-      (a, b) => {
-
-        let va;
-        let vb;
-
-
-        if (sortKey === "year") {
-
-          va = a.yearNumber;
-          vb = b.yearNumber;
-
-        } else {
-
-          va =
-            String(
-              a[sortKey] || ""
-            ).toLowerCase();
-
-          vb =
-            String(
-              b[sortKey] || ""
-            ).toLowerCase();
-
-        }
-
-
-        if (va < vb) {
-
-          return sortDir === "asc"
-            ? -1
-            : 1;
-
-        }
-
-
-        if (va > vb) {
-
-          return sortDir === "asc"
-            ? 1
-            : -1;
-
-        }
-
-
-        return 0;
-
+    filteredPapers.sort((a, b) => {
+      let va, vb;
+      if (sortKey === "year") {
+        va = a.yearNumber;
+        vb = b.yearNumber;
+      } else {
+        va = String(a[sortKey] || "").toLowerCase();
+        vb = String(b[sortKey] || "").toLowerCase();
       }
-    );
 
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * MAIN RENDER
-   * ---------------------------------------------------------
-   */
 
   function render() {
-
-    /*
-     * Only run the expensive filtering/sorting stage
-     * when the filters have actually changed.
-     */
-
     filterPapers();
-
     renderResults();
-
-    /*
-     * The view is now fully rendered, so it becomes the
-     * reference point for the next Back action.
-     */
-    lastViewSnapshot =
-      getViewSnapshot();
-
+    lastViewSnapshot = getViewSnapshot();
     updateNavigationButtons();
-
   }
-
-
-  /*
-   * ---------------------------------------------------------
-   * RENDER RESULTS
-   * ---------------------------------------------------------
-   *
-   * Only the current page is converted into HTML.
-   */
 
   function renderResults() {
+    const rawQuery = document.getElementById("search").value.trim();
+    const countEl = document.getElementById("count");
 
-    const rawQuery =
-      document
-        .getElementById("search")
-        .value
-        .trim();
+    countEl.textContent = `${filteredPapers.length} paper${filteredPapers.length === 1 ? "" : "s"}`;
 
-
-    const countEl =
-      document.getElementById("count");
-
-
-    countEl.textContent =
-      `${filteredPapers.length} paper${
-        filteredPapers.length === 1
-          ? ""
-          : "s"
-      }`;
-
-
-    const totalPages =
-      Math.max(
-        1,
-        Math.ceil(
-          filteredPapers.length /
-          pageSize
-        )
-      );
-
-
-    if (
-      currentPage >
-      totalPages
-    ) {
-
-      currentPage =
-        totalPages;
-
+    const totalPages = Math.max(1, Math.ceil(filteredPapers.length / pageSize));
+    if (currentPage > totalPages) {
+      currentPage = totalPages;
     }
 
-
-    const startIdx =
-      (currentPage - 1) *
-      pageSize;
-
-
-    const pageItems =
-      filteredPapers.slice(
-        startIdx,
-        startIdx + pageSize
-      );
-
-
-    const resultsEl =
-      document.getElementById("results");
-
+    const startIdx = (currentPage - 1) * pageSize;
+    const pageItems = filteredPapers.slice(startIdx, startIdx + pageSize);
+    const resultsEl = document.getElementById("results");
 
     if (!pageItems.length) {
-
-      resultsEl.innerHTML =
-        '<div class="empty">No papers match your search.</div>';
-
-      renderPagination(
-        totalPages
-      );
-
+      resultsEl.innerHTML = '<div class="empty">No papers match your search.</div>';
+      renderPagination(totalPages);
       return;
-
     }
 
+    resultsEl.innerHTML = pageItems.map(p => {
+      const tagsHtml = p.tags.length
+        ? `<div class="paper-tags">
+            ${p.tags.map(t => `<span>${highlightMatch(t, rawQuery)}</span>`).join("")}
+           </div>`
+        : "<span></span>";
 
-    /*
-     * Build only the visible page.
-     */
-
-    resultsEl.innerHTML =
-      pageItems
-        .map(p => {
-
-
-
-          const tagsHtml =
-            p.tags.length
-
-              ? `
-                <div class="paper-tags">
-                  ${p.tags
-                    .map(
-                      t =>
-                        `<span>${highlightMatch(t, rawQuery)}</span>`
-                    )
-                    .join("")}
-                </div>
-              `
-
-              : "<span></span>";
-
-
-          return `
-
-            <div class="paper">
-
-              <p class="paper-ref">
-                ${formatIEEE(
-                  p,
-                  rawQuery
-                )}
-              </p>
-
-              ${
-                p.institutionList.length
-                  ? `<p class="paper-institution">${highlightMatch(p.institutionList.join(", "), rawQuery)}</p>`
-                  : ""
-              }
-              
-
-              ${
-                p.pdf_url
-                  ? (() => {
-
-                      const source =
-                        getPaperSource(p);
-
-                      return `
-                        <div class="paper-access-row">
-
-                          ${
-                            source.label
-                              ? `
-                                <span class="paper-source">
-                                  ${escapeHtml(source.label)}
-                                </span>
-                              `
-                              : "<span></span>"
-                          }
-
-                          <a
-                            class="paper-access-btn"
-                            href="${escapeHtml(p.pdf_url)}"
-                            target="_blank"
-                            rel="noopener"
-                          >
-                            Access Paper
-                          </a>
-
-                        </div>
-                      `;
-
-                    })()
-                  : ""
-              }
-
-
-              <div class="paper-footer">
-
-                ${tagsHtml}
-
-
-                <div class="paper-author-links">
-
-                  ${
-                    p.authorList.length
-                      ? p.authorList
-                          .map(author => `
-                            <a
-                              href="#"
-                              class="paper-author"
-                              data-author="${escapeHtml(author)}"
-                              title="Show all papers by ${escapeHtml(author)}"
-                            >
-                              ${escapeHtml(author)}
-                            </a>
-                          `)
-                          .join("")
-                      : ""
-                  }
-
-                  ${
-                    p.doi
-                      ? `
-                        <a
-                          class="paper-doi"
-                          href="https://doi.org/${encodeURIComponent(
-                            p.doi
-                          )}"
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          https://doi.org/${escapeHtml(p.doi)}
-                        </a>
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-
-
+      return `
+        <div class="paper">
+          <p class="paper-ref">${formatIEEE(p, rawQuery)}</p>
+          ${p.institutionList.length ? `<p class="paper-institution">${highlightMatch(p.institutionList.join(", "), rawQuery)}</p>` : ""}
+          ${p.pdf_url ? (() => {
+            const source = getPaperSource(p);
+            return `
+              <div class="paper-access-row">
+                ${source.label ? `<span class="paper-source">${escapeHtml(source.label)}</span>` : "<span></span>"}
+                <a class="paper-access-btn" href="${escapeHtml(p.pdf_url)}" target="_blank" rel="noopener">Access Paper</a>
+              </div>`;
+          })() : ""}
+          <div class="paper-footer">
+            ${tagsHtml}
+            <div class="paper-author-links">
+              ${p.authorList.length ? p.authorList.map(author => `
+                <a href="#" class="paper-author" data-author="${escapeHtml(author)}" title="Show all papers by ${escapeHtml(author)}">
+                  ${escapeHtml(author)}
+                </a>
+              `).join("") : ""}
+              ${p.doi ? `
+                <a class="paper-doi" href="https://doi.org/${encodeURIComponent(p.doi)}" target="_blank" rel="noopener">
+                  https://doi.org/${escapeHtml(p.doi)}
+                </a>` : ""}
             </div>
+          </div>
+        </div>
+      `;
+    }).join("");
 
-          `;
-
-        })
-        .join("");
-
-
-    resultsEl
-      .querySelectorAll(".paper-author")
-      .forEach(link => {
-
-        link.addEventListener("click", (event) => {
-
-          event.preventDefault();
-
-          const author =
-            link.dataset.author || "";
-
-          if (author) {
-            showPapersByAuthor(author);
-          }
-
-        });
-
+    resultsEl.querySelectorAll(".paper-author").forEach(link => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const author = link.dataset.author || "";
+        if (author) showPapersByAuthor(author);
       });
+    });
 
-
-    renderPagination(
-      totalPages
-    );
-
+    renderPagination(totalPages);
   }
 
-function computeAuthorStats(author) {
-  const papersByAuthor = papers.filter(p => p.authorList.includes(author));
-  return { count: papersByAuthor.length };
-}
+  function computeAuthorStats(author) {
+    const papersByAuthor = papers.filter(p => p.authorList.includes(author));
+    return { count: papersByAuthor.length };
+  }
 
-function showAuthorProfile(author) {
-  const stats = computeAuthorStats(author);
-
-  document.getElementById("authorProfileName").textContent = author;
-  document.getElementById("authorProfileCount").textContent =
-    `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
-
-  document.getElementById("authorProfile").classList.add("visible");
-  visibleAuthorProfile = author;
-
-  positionMarginBoxes();
-}
-
+  function showAuthorProfile(author) {
+    const stats = computeAuthorStats(author);
+    document.getElementById("authorProfileName").textContent = author;
+    document.getElementById("authorProfileCount").textContent = `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
+    document.getElementById("authorProfile").classList.add("visible");
+    visibleAuthorProfile = author;
+    positionMarginBoxes();
+  }
 
   function hideAuthorProfile() {
-
     document.getElementById("authorProfile").classList.remove("visible");
-
     visibleAuthorProfile = null;
-
   }
 
-
-
-    
-  /*
-   * ---------------------------------------------------------
-   * AUTHOR FILTER
-   * ---------------------------------------------------------
-   *
-   * Clicking an author name clears the other filters and
-   * shows every paper in this database by that author.
-   */
-
   function showPapersByAuthor(author) {
-
     selectedAuthors.clear();
     selectedAuthors.add(author);
-
     selectedInstitutions.clear();
 
     document.getElementById("search").value = "";
     document.getElementById("authorSearch").value = "";
     document.getElementById("institutionSearch").value = "";
-
     document.getElementById("yearFrom").value = "";
     document.getElementById("yearTo").value = "";
 
     document.getElementById("authorChips").innerHTML = `
       <span class="chip">
         ${escapeHtml(author)}
-        <button
-          type="button"
-          data-value="${escapeHtml(author)}"
-          aria-label="Remove ${escapeHtml(author)}"
-        >
-          &times;
-        </button>
+        <button type="button" data-value="${escapeHtml(author)}" aria-label="Remove ${escapeHtml(author)}">&times;</button>
       </span>
     `;
 
     document.getElementById("institutionChips").innerHTML = "";
 
     pushCurrentViewToHistory();
-
     currentPage = 1;
     lastFilterState = null;
 
     showAuthorProfile(author);
-
     render();
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-
-  /*
-   * ---------------------------------------------------------
-   * PAGINATION
-   * ---------------------------------------------------------
-   */
-
-  function renderPagination(
-    totalPages
-  ) {
-
-    const el =
-      document.getElementById(
-        "pagination"
-      );
-
+  function renderPagination(totalPages) {
+    const el = document.getElementById("pagination");
 
     if (totalPages <= 1) {
-
       el.innerHTML = "";
-
       return;
-
     }
 
-
     el.innerHTML = `
-
-      <button
-        class="page-btn"
-        id="prevPage"
-        ${
-          currentPage === 1
-            ? "disabled"
-            : ""
-        }
-      >
-        &larr; Prev
-      </button>
-
-
-      <span class="page-info">
-        Page ${currentPage} of ${totalPages}
-      </span>
-
-
-      <button
-        class="page-btn"
-        id="nextPage"
-        ${
-          currentPage === totalPages
-            ? "disabled"
-            : ""
-        }
-      >
-        Next &rarr;
-      </button>
-
+      <button class="page-btn" id="prevPage" ${currentPage === 1 ? "disabled" : ""}>&larr; Prev</button>
+      <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+      <button class="page-btn" id="nextPage" ${currentPage === totalPages ? "disabled" : ""}>Next &rarr;</button>
     `;
 
+    document.getElementById("prevPage").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        pushCurrentViewToHistory();
+        render();
+        document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
 
-    document
-      .getElementById("prevPage")
-      .addEventListener(
-        "click",
-        () => {
-
-          if (
-            currentPage > 1
-          ) {
-
-            currentPage--;
-
-            pushCurrentViewToHistory();
-
-            /*
-             * IMPORTANT:
-             *
-             * render() is still safe here because
-             * filterPapers() sees that the filter state
-             * hasn't changed and immediately returns.
-             */
-
-            render();
-
-            document
-              .querySelector(".wrap")
-              .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-
-          }
-
-        }
-      );
-
-
-    document
-      .getElementById("nextPage")
-      .addEventListener(
-        "click",
-        () => {
-
-          if (
-            currentPage <
-            totalPages
-          ) {
-
-            currentPage++;
-
-            pushCurrentViewToHistory();
-
-            render();
-
-            document
-              .querySelector(".wrap")
-              .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-
-          }
-
-        }
-      );
-
+    document.getElementById("nextPage").addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        pushCurrentViewToHistory();
+        render();
+        document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
   }
-
 
 </script>
 
