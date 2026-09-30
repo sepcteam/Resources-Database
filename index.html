@@ -976,38 +976,110 @@ background: transparent;
     fitUploadBox();
   }
 
+  /*
+   * ---------------------------------------------------------
+   * UPLOAD BOX COLLISION HANDLING
+   * ---------------------------------------------------------
+   *
+   * Anything that can sit above the upload box is treated as
+   * an obstruction:
+   *
+   *   - the filter panel (when open)
+   *   - EVERY open multiselect dropdown
+   *
+   * Dropdowns are checked on their own, not just through the
+   * panel that contains them. If a dropdown is ever given
+   * position: absolute (so it can extend past the panel's
+   * bounds), the upload box still reacts to it.
+   *
+   * The upload box is anchored to the bottom of the viewport,
+   * so each obstruction limits how much vertical room is left.
+   * The tightest limit across all overlapping obstructions
+   * decides whether the box stays full size, goes compact,
+   * goes tiny, or is hidden.
+   */
+
+  function getUploadObstructions() {
+    const obstructions = [];
+
+    const panel = document.getElementById("filterPanel");
+    if (panel && panel.classList.contains("open")) {
+      obstructions.push(panel);
+    }
+
+    document
+      .querySelectorAll(".multiselect-dropdown.open")
+      .forEach(dropdown => obstructions.push(dropdown));
+
+    return obstructions;
+  }
+
   function fitUploadBox() {
     const box = document.getElementById("uploadBox");
-    const panel = document.getElementById("filterPanel");
     if (!box) return;
 
+    /*
+     * Reset to the full-size state, then measure.
+     */
     box.style.display = "";
     box.style.height = "";
     box.style.minHeight = "";
     box.classList.remove("compact", "tiny");
 
-    if (!panel || !panel.classList.contains("open")) return;
+    const obstructions = getUploadObstructions();
+    if (!obstructions.length) return;
 
     const gap = 6;
-    const p = panel.getBoundingClientRect();
     const b = box.getBoundingClientRect();
 
-    if (p.left >= b.right || p.right <= b.left) return;
-    if (p.bottom <= 0 || p.top >= window.innerHeight) return;
-    if (p.top >= b.bottom) return;
-    if (p.bottom + gap <= b.top) return;
+    /*
+     * Vertical room left below the lowest overlapping
+     * obstruction. Stays Infinity if nothing overlaps.
+     */
+    let available = Infinity;
 
-    const available = b.bottom - p.bottom - gap;
+    obstructions.forEach(el => {
+      const r = el.getBoundingClientRect();
 
+      // Not rendered (display: none, detached, etc.)
+      if (r.width === 0 && r.height === 0) return;
+
+      // No horizontal overlap
+      if (r.left >= b.right || r.right <= b.left) return;
+
+      // Entirely off-screen vertically
+      if (r.bottom <= 0 || r.top >= window.innerHeight) return;
+
+      // Entirely below the upload box
+      if (r.top >= b.bottom) return;
+
+      // Entirely above the upload box with clearance to spare
+      if (r.bottom + gap <= b.top) return;
+
+      available = Math.min(available, b.bottom - r.bottom - gap);
+    });
+
+    if (available === Infinity) return;
+
+    /*
+     * Step 1: drop the hint text.
+     */
     box.style.minHeight = "0";
     box.classList.add("compact");
 
     if (available >= box.offsetHeight) return;
 
+    /*
+     * Step 2: drop the icon and tighten the padding.
+     */
     box.classList.add("tiny");
 
     if (available >= box.offsetHeight) return;
 
+    /*
+     * Step 3: nothing fits, so hide the box rather than let
+     * it sit underneath the obstruction.
+     */
     box.style.display = "none";
   }
 
@@ -1025,10 +1097,36 @@ background: transparent;
   window.addEventListener("resize", positionMarginBoxes);
   window.addEventListener("scroll", scheduleFitUploadBox, { passive: true });
 
+  /*
+   * Re-fit whenever an obstruction changes size or visibility.
+   *
+   *  - ResizeObserver catches the panel and each dropdown
+   *    growing/shrinking (e.g. the option list being filtered).
+   *  - MutationObserver catches a dropdown's "open" class being
+   *    toggled, which a ResizeObserver alone would miss if the
+   *    dropdown is taken out of normal flow.
+   */
+
   const filterPanelEl = document.getElementById("filterPanel");
 
-  if (window.ResizeObserver && filterPanelEl) {
-    new ResizeObserver(scheduleFitUploadBox).observe(filterPanelEl);
+  const obstructionEls = [
+    filterPanelEl,
+    ...document.querySelectorAll(".multiselect-dropdown")
+  ].filter(Boolean);
+
+  if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(scheduleFitUploadBox);
+    obstructionEls.forEach(el => resizeObserver.observe(el));
+  }
+
+  if (window.MutationObserver) {
+    const mutationObserver = new MutationObserver(scheduleFitUploadBox);
+    obstructionEls.forEach(el =>
+      mutationObserver.observe(el, {
+        attributes: true,
+        attributeFilter: ["class"]
+      })
+    );
   }
 
   document
