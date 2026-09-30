@@ -380,7 +380,42 @@
   flex-direction: row;
   align-items: center;
   gap: 8px;
-}
+  }
+  
+    .author-profile {
+    display: none;
+    position: absolute;
+    right: 100%;
+    top: calc(100% + 12px);
+    margin-right: 12px;
+    width: 200px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .author-profile.visible {
+    display: block;
+  }
+
+  .author-profile-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .author-profile-count {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .author-profile-institutions {
+    font-size: 0.78rem;
+    color: var(--accent-dark);
+    line-height: 1.6;
+  }
 
   .navigation-btn {
     padding: 8px 14px;
@@ -669,6 +704,13 @@
           Back to all papers
         </button>
         </div>
+
+        <aside class="author-profile" id="authorProfile">
+          <div class="author-profile-name" id="authorProfileName"></div>
+          <div class="author-profile-count" id="authorProfileCount"></div>
+          <div class="author-profile-institutions" id="authorProfileInstitutions"></div>
+        </aside>
+
         <div class="search-wrap">
 
           <button
@@ -832,6 +874,8 @@
   let currentPage = 1;
   let pageSize = 50;
 
+  let visibleAuthorProfile = null;
+  
   const selectedAuthors = new Set();
   const selectedInstitutions = new Set();
 
@@ -1066,6 +1110,8 @@
 
     lastFilterState = null;
 
+    hideAuthorProfile();
+
     render();
 
   }
@@ -1271,6 +1317,8 @@
        */
       navigationHistory.length = 0;
 
+      hideAuthorProfile();
+      
       selectedAuthors.clear();
 
       selectedInstitutions.clear();
@@ -1931,7 +1979,9 @@
 
       currentPage,
 
-      pageSize
+      pageSize,
+
+      authorProfile: visibleAuthorProfile
 
     };
 
@@ -2107,6 +2157,12 @@
 
 
     lastFilterState = null;
+
+    if (snapshot.authorProfile) {
+      showAuthorProfile(snapshot.authorProfile);
+    } else {
+      hideAuthorProfile();
+    }
 
     render();
 
@@ -2588,7 +2644,57 @@
 
   }
 
+    function computeAuthorStats(author) {
 
+    const papersByAuthor =
+      papers.filter(p =>
+        p.authorList.includes(author)
+      );
+
+    const institutions = [
+      ...new Set(
+        papersByAuthor.flatMap(p => p.institutionList)
+      )
+    ];
+
+    return {
+      count: papersByAuthor.length,
+      institutions
+    };
+
+  }
+
+
+  function showAuthorProfile(author) {
+
+    const stats = computeAuthorStats(author);
+
+    document.getElementById("authorProfileName").textContent = author;
+
+    document.getElementById("authorProfileCount").textContent =
+      `${stats.count} paper${stats.count === 1 ? "" : "s"} in this database`;
+
+    document.getElementById("authorProfileInstitutions").innerHTML =
+      stats.institutions.map(i => escapeHtml(i)).join("<br>");
+
+    document.getElementById("authorProfile").classList.add("visible");
+
+    visibleAuthorProfile = author;
+
+  }
+
+
+  function hideAuthorProfile() {
+
+    document.getElementById("authorProfile").classList.remove("visible");
+
+    visibleAuthorProfile = null;
+
+  }
+
+
+
+    
   /*
    * ---------------------------------------------------------
    * AUTHOR FILTER
@@ -2627,13 +2733,14 @@
 
     document.getElementById("institutionChips").innerHTML = "";
 
-    currentPage = 1;
+    pushCurrentViewToHistory();
 
-    /*
-     * The previous view is automatically saved by
-     * applyFilterChange() before the new author filter renders.
-     */
-    applyFilterChange();
+    currentPage = 1;
+    lastFilterState = null;
+
+    showAuthorProfile(author);
+
+    render();
 
     window.scrollTo({
       top: 0,
